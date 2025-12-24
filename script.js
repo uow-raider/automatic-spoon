@@ -1,1 +1,57 @@
-(function(_0x5a1b,_0x3e1c){const _0x4d2a=function(_0x1b1a){while(--_0x1b1a){_0x5a1b['push'](_0x5a1b['shift']());}};_0x4d2a(++_0x3e1c);}(_0x2a1e,0x1a4));const _0x5b3c=function(_0x2a1e,_0x5a1b){_0x2a1e=_0x2a1e-0x0;let _0x4d2a=_0x2a1e[0x0];return _0x4d2a;};function _0x2a1e(){const _0x1c2b=['log-container','value','token','split','map','trim','filter','channelId','message','interval','limit','everyoneMention','checked','mentionUsers','randomize','execute','stopSpam','leaveServer','Authorization','Content-Type','application/json','POST','https://discord.com/api/v9/channels/','/messages','retry_after','DELETE','https://discord.com/api/v9/users/@me/guilds/'];_0x2a1e=function(){return _0x1c2b;};return _0x2a1e();}let _0x41f233=false;let _0x28972a=false;function addLog(_0x42eb12){const _0x2a0f67=document['getElementById']('log-container');const _0x231a23=document['createElement']('div');_0x231a23['textContent']=`[${new Date()['toLocaleTimeString']()}]\x20${_0x42eb12}`;_0x2a0f67['prepend'](_0x231a23);}async function execute(){if(_0x41f233)return alert('Running...');const _0x199120=document['getElementById']('token')['value'];const _0x301026=_0x199120['split']('\x0a')['map'](_0x35086c=>_0x35086c['trim']())['filter'](_0x264627=>_0x264627!=="");const _0x487901=document['getElementById']('channelId')['value'];if(_0x301026['length']===0x0||!_0x487901)return alert('Error');_0x41f233=true;_0x28972a=false;addLog(`${_0x301026['length']}\x20tokens\x20active`);const _0x4e0622=_0x301026['map']((_0x310433,_0x364175)=>runTokenTask(_0x310433,_0x364175+0x1,_0x487901));await Promise['all'](_0x4e0622);_0x41f233=false;addLog('Finish');}async function runTokenTask(_0x550302,_0x388277,_0x1b4159){const _0x37759a=document['getElementById']('message')['value'];const _0x15638e=parseFloat(document['getElementById']('interval')['value'])*0x3e8;const _0x53527a=parseInt(document['getElementById']('limit')['value']);for(let _0x1613d2=0x0;_0x1613d2<_0x53527a;_0x1613d2++){if(_0x28972a)break;let _0x323498=_0x37759a;if(document['getElementById']('randomize')['checked']){_0x323498+=`\x20[${Math['random']()['toString'](0x24)['substring'](0x7)}]`;}try{const _0x153c30=await fetch(`https://discord.com/api/v9/channels/${_0x1b4159}/messages`,{method:'POST',headers:{'Authorization':_0x550302,'Content-Type':'application/json'},body:JSON['stringify']({content:_0x323498})});if(_0x153c30['status']===0x1ad){const _0x507c39=await _0x153c30['json']();await new Promise(_0x221350=>setTimeout(_0x221350,_0x507c39['retry_after']*0x3e8));}}catch(_0x422676){addLog('Error');}await new Promise(_0x4208a3=>setTimeout(_0x4208a3,_0x15638e));}}function stopSpam(){_0x28972a=true;addLog('Stopping...');}async function leaveServer(){const _0x1b5894=document['getElementById']('token')['value']['split']('\x0a')['map'](_0x40989b=>_0x40989b['trim']())['filter'](_0x2d1748=>_0x2d1748!=="");const _0x4f4992=document['getElementById']('serverId')['value'];if(_0x1b5894['length']===0x0||!_0x4f4992)return;for(const _0x298402 of _0x1b5894){try{await fetch(`https://discord.com/api/v9/users/@me/guilds/${_0x4f4992}`,{method:'DELETE',headers:{'Authorization':_0x298402}});}catch(_0x56a42a){}}alert('Done');}
+/* NOVA reider - Optimized Core */
+const _0x4f22=['log-container','value','token','split','map','trim','filter','channelId','message','interval','limit','randomize','checked','everyoneMention','mentionUsers','status','json','retry_after','POST','application/json','Authorization','DELETE','https://discord.com/api/v9/channels/','/messages','https://discord.com/api/v9/users/@me/guilds/'];
+const _0x1a2b=(_0x3c1d)=>_0x4f22[_0x3c1d];
+
+let isRunning = false;
+let stopSignal = false;
+
+function addLog(t){const c=document.getElementById(_0x1a2b(0));const e=document.createElement('div');e.textContent=`[${new Date().toLocaleTimeString()}] ${t}`;c.prepend(e)}
+
+async function execute(){
+    if(isRunning)return;
+    const tks=document.getElementById(_0x1a2b(2)).value[_0x1a2b(3)]('\n')[_0x1a2b(4)](t=>t[_0x1a2b(5)]())[_0x1a2b(6)](t=>t!=="");
+    const cid=document.getElementById(_0x1a2b(7)).value;
+    if(tks.length===0||!cid)return alert('Missing Data');
+    
+    isRunning=true;stopSignal=false;addLog(`Started: ${tks.length} tokens`);
+    
+    await Promise.all(tks.map((tk,i)=>runTokenTask(tk,i+1,cid)));
+    isRunning=false;addLog("Finished");
+}
+
+async function runTokenTask(tk,id,cid){
+    const msg=document.getElementById(_0x1a2b(8)).value;
+    const iv=parseFloat(document.getElementById(_0x1a2b(9)).value)*1000;
+    const lm=parseInt(document.getElementById(_0x1a2b(10)).value);
+    
+    for(let i=0;i<lm;i++){
+        if(stopSignal)break;
+        let fMsg=msg;
+        if(document.getElementById(_0x1a2b(11))[_0x1a2b(12)]) fMsg+=` [${Math.random().toString(36).substring(7)}]`;
+        
+        try{
+            const r=await fetch(`${_0x1a2b(22)}${cid}${_0x1a2b(23)}`,{
+                method:_0x1a2b(18),
+                headers:{[_0x1a2b(20)]:tk,'Content-Type':_0x1a2b(19)},
+                body:JSON.stringify({content:fMsg})
+            });
+            if(r[_0x1a2b(15)]===429){
+                const d=await r[_0x1a2b(16)]();
+                await new Promise(res=>setTimeout(res,d[_0x1a2b(17)]*1000));
+            }
+        }catch(e){addLog(`Error T${id}`);}
+        await new Promise(res=>setTimeout(res,iv));
+    }
+}
+
+function stopSpam(){stopSignal=true;addLog("Stopping...");}
+
+async function leaveServer(){
+    const tks=document.getElementById(_0x1a2b(2)).value[_0x1a2b(3)]('\n')[_0x1a2b(4)](t=>t[_0x1a2b(5)]())[_0x1a2b(6)](t=>t!=="");
+    const sid=document.getElementById('serverId').value;
+    if(tks.length===0||!sid)return;
+    for(const tk of tks){
+        try{await fetch(`${_0x1a2b(24)}${sid}`,{method:_0x1a2b(21),headers:{[_0x1a2b(20)]:tk}});}catch(e){}
+    }
+    alert('Done');
+}
