@@ -3,13 +3,16 @@ let totalSentCount = 0;
 
 const raiderForm = document.getElementById('raiderForm');
 const tokensArea = document.getElementById('tokens');
+const targetIdsArea = document.getElementById('targetUserIds');
+const mentionInput = document.getElementById('mentionCount');
 const toggleBtn = document.getElementById('toggleBtn');
+const fetchUsersBtn = document.getElementById('fetchUsersBtn');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const statusText = document.getElementById('statusText');
 const countText = document.getElementById('countText');
 
-// --- 表示・非表示の切り替え ---
+// トークン表示切り替え
 toggleBtn.addEventListener('click', () => {
     if (tokensArea.classList.contains('masked')) {
         tokensArea.classList.remove('masked');
@@ -20,18 +23,46 @@ toggleBtn.addEventListener('click', () => {
     }
 });
 
-raiderForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+// 20文字のランダム文字列生成（改行から開始）
+function generateStrongRandom() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "\n"; 
+    for (let i = 0; i < 20; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
 
+// ユーザーID取得（チャンネル履歴から）
+fetchUsersBtn.addEventListener('click', async () => {
     const tokenList = tokensArea.value.split(/\r?\n/).filter(t => t.trim() !== "");
     const channelId = document.getElementById('channelId').value.trim();
-    const message = document.getElementById('message').value;
-    
-    // ミリ秒としてそのまま取得
-    const intervalMs = parseInt(document.getElementById('interval').value);
+    if (!tokenList[0] || !channelId) return alert("トークンとチャンネルIDが必要です");
 
-    if (tokenList.length === 0) return alert("トークンを入力してください");
-    if (intervalMs < 50) return alert("間隔が短すぎます（最低50ms以上推奨）");
+    fetchUsersBtn.innerText = "取得中...";
+    try {
+        const res = await fetch(`https://discord.com/api/v9/channels/${channelId}/messages?limit=50`, {
+            headers: { 'Authorization': tokenList[0].trim() }
+        });
+        const messages = await res.json();
+        const ids = [...new Set(messages.map(m => m.author.id))];
+        targetIdsArea.value = ids.join("\n");
+        alert(`${ids.length}名のIDを取得しました`);
+    } catch (err) { alert("取得失敗"); }
+    fetchUsersBtn.innerText = "ユーザーID取得";
+});
+
+// 送信実行
+raiderForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const tokenList = tokensArea.value.split(/\r?\n/).filter(t => t.trim() !== "");
+    const channelId = document.getElementById('channelId').value.trim();
+    const messageBase = document.getElementById('message').value;
+    const intervalMs = parseInt(document.getElementById('interval').value);
+    const mentionNum = parseInt(mentionInput.value);
+    const targetIds = targetIdsArea.value.split(/\r?\n/).filter(id => id.trim() !== "");
+
+    if (tokenList.length === 0) return;
 
     startBtn.disabled = true;
     stopBtn.disabled = false;
@@ -40,12 +71,15 @@ raiderForm.addEventListener('submit', (e) => {
 
     const sendMessage = async () => {
         for (const token of tokenList) {
-            // 停止ボタンが押されたらループを抜ける
-            if (!raiderTimer && totalSentCount > 0) return;
+            if (raiderTimer === null) return;
 
-            // 検知回避用のランダムID生成
-            const randomId = Math.random().toString(36).substring(2, 6);
-            const finalMessage = `${message} [${randomId}]`;
+            let mentions = "";
+            if (mentionNum > 0 && targetIds.length > 0) {
+                const shuffled = [...targetIds].sort(() => 0.5 - Math.random());
+                mentions = shuffled.slice(0, mentionNum).map(id => `<@${id.trim()}>`).join(" ");
+            }
+
+            const finalMessage = `${mentions} ${messageBase} ${generateStrongRandom()}`;
 
             try {
                 const response = await fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
@@ -56,20 +90,15 @@ raiderForm.addEventListener('submit', (e) => {
                     },
                     body: JSON.stringify({ content: finalMessage })
                 });
-
                 if (response.ok) {
                     totalSentCount++;
                     countText.innerText = totalSentCount;
                 }
-            } catch (err) {
-                console.error("送信エラー:", err);
-            }
-            // アカウント間のごくわずかなディレイ（100ms）
-            await new Promise(r => setTimeout(r, 100));
+            } catch (err) { console.error(err); }
+            await new Promise(r => setTimeout(r, 150));
         }
     };
 
-    // 指定したミリ秒でループ
     sendMessage();
     raiderTimer = setInterval(sendMessage, intervalMs);
 });
