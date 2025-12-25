@@ -18,7 +18,7 @@
         <div class="section">
             <label>USER TOKENS (1行に1つ)</label>
             <div class="token-container">
-                <textarea id="tokens" class="masked" placeholder="mfa.token1&#10;mfa.token2" style="height: 100px;" required></textarea>
+                <textarea id="tokens" class="masked" placeholder="mfa.token1&#10;mfa.token2" style="height: 80px;" required></textarea>
                 <div id="toggleBtn" class="view-toggle">トークンを表示する</div>
             </div>
         </div>
@@ -26,12 +26,27 @@
         <div class="form-row section">
             <div style="flex: 2;">
                 <label>CHANNEL ID</label>
-                <input type="text" id="channelId" placeholder="123456789012345" required>
+                <input type="text" id="channelId" placeholder="1234567890" required>
             </div>
             <div style="flex: 1;">
                 <label>INTERVAL (ms)</label>
-                <input type="number" id="interval" value="1000" step="50" min="50">
+                <input type="number" id="interval" value="1000" min="50">
             </div>
+        </div>
+
+        <div class="form-row section">
+            <div style="flex: 1;">
+                <label>メンション人数/回</label>
+                <input type="number" id="mentionCount" value="0" min="0" max="10">
+            </div>
+            <div style="flex: 1; align-self: flex-end;">
+                <button type="button" id="fetchUsersBtn" class="btn btn-fetch">ユーザーID取得</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <label>ターゲットユーザーID (自動取得または手動入力)</label>
+            <textarea id="targetUserIds" placeholder="1234567890&#10;0987654321" style="height: 60px;"></textarea>
         </div>
 
         <div class="section">
