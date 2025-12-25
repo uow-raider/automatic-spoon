@@ -8,7 +8,7 @@
 }
 
 body {
-    font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     display: flex;
@@ -44,7 +44,6 @@ header {
 .subtitle {
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 1px;
     opacity: 0.6;
 }
 
@@ -68,8 +67,6 @@ textarea, input {
     border-radius: 8px;
     color: white;
     box-sizing: border-box;
-    outline: none;
-    font-family: 'Consolas', monospace;
 }
 
 .masked {
@@ -83,7 +80,6 @@ textarea, input {
     text-align: right;
     margin-top: 5px;
     text-decoration: underline;
-    user-select: none;
 }
 
 .form-row {
@@ -105,24 +101,11 @@ textarea, input {
     font-weight: bold;
     cursor: pointer;
     text-transform: uppercase;
-    transition: 0.3s;
 }
 
-.btn-primary { 
-    background: var(--primary); 
-    color: #000; 
-}
-
-.btn-danger { 
-    background: var(--danger); 
-    color: white; 
-}
-
-.btn-danger:disabled { 
-    background: #333; 
-    cursor: not-allowed; 
-    opacity: 0.5; 
-}
+.btn-primary { background: var(--primary); color: #000; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:disabled { background: #333; opacity: 0.5; }
 
 .status-board {
     margin-top: 20px;
@@ -131,7 +114,7 @@ textarea, input {
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
-    font-family: 'Consolas', monospace;
+    font-family: monospace;
     font-size: 14px;
     border: 1px inset var(--border);
 }
