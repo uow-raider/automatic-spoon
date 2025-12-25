@@ -1,1 +1,67 @@
-<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NOVA reider</title><link rel="stylesheet" href="style.css"></head><body><div class="container"><h1>NOVA reider</h1><h2>Web Multi-Token Raider</h2><div class="form-group"><label>トークン（改行で複数入力可）</label><textarea id="token" placeholder="トークンを1行ずつ入力"></textarea></div><div class="inline-group"><div class="form-group"><label>サーバーID</label><input type="text" id="serverId" placeholder="サーバーID"></div><div class="form-group"><label>チャンネルID</label><input type="text" id="channelId" placeholder="チャンネルID"></div></div><div class="form-group"><label>メッセージ内容</label><textarea id="message" placeholder="送信するメッセージを入力"></textarea></div><div class="checkbox-group"><input type="checkbox" id="randomize"><label for="randomize" style="margin-bottom:0">メッセージのランダマイズ</label></div><div class="inline-group"><div class="form-group"><label>送信間隔 (秒)</label><input type="number" id="interval" value="1" min="0.1" step="0.1"></div><div class="form-group"><label>送信上限 (1トークンあたり)</label><input type="number" id="limit" value="10" min="1"></div></div><hr class="section-divider"><div class="button-group"><button class="btn-primary" onclick="execute()">実行</button><button class="btn-danger" onclick="stopSpam()">停止</button></div><button class="btn-secondary" onclick="leaveServer()" style="width:100%;margin-top:15px">サーバー退出</button><div id="log-container">Ready...</div></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Raider</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="brand-title">NOVA RAIDER</h1>
+            <p class="subtitle">Next Generation Message Automator</p>
+        </header>
+
+        <form id="raiderForm">
+            <div class="section">
+                <div class="form-group">
+                    <label>ユーザー認証トークン</label>
+                    <input type="password" id="token" placeholder="mfa.xxxxxxxxxxxxxx" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>チャンネルID</label>
+                        <input type="text" id="channelId" placeholder="1234567890" required>
+                    </div>
+                    <div class="form-group">
+                        <label>送信間隔 (秒)</label>
+                        <input type="number" id="interval" value="1.0" step="0.1" min="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="form-group">
+                    <label>メッセージ内容</label>
+                    <textarea id="message" placeholder="送信するテキストを入力..."></textarea>
+                </div>
+            </div>
+
+            <div class="section-title">ADVANCED SETTINGS</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>メンションID</label>
+                    <input type="text" id="mentionId" placeholder="User ID">
+                </div>
+                <div class="form-group">
+                    <label>最大送信回数 (0=無限)</label>
+                    <input type="number" id="loopCount" value="0">
+                </div>
+            </div>
+
+            <div class="controls">
+                <button type="submit" id="startBtn" class="btn btn-primary">NOVA 起動</button>
+                <button type="button" id="stopBtn" class="btn btn-danger" disabled>停止</button>
+            </div>
+        </form>
+
+        <div id="statusBoard" class="status-board">
+            <span>STATUS: <strong id="statusText">READY</strong></span>
+            <span>SENT: <strong id="countText">0</strong></span>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
