@@ -2,23 +2,37 @@ let raiderTimer = null;
 let totalSentCount = 0;
 
 const raiderForm = document.getElementById('raiderForm');
+const tokensArea = document.getElementById('tokens');
+const toggleBtn = document.getElementById('toggleBtn');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const statusText = document.getElementById('statusText');
 const countText = document.getElementById('countText');
 
+// --- 表示・非表示の切り替え ---
+toggleBtn.addEventListener('click', () => {
+    if (tokensArea.classList.contains('masked')) {
+        tokensArea.classList.remove('masked');
+        toggleBtn.innerText = "トークンを隠す";
+    } else {
+        tokensArea.classList.add('masked');
+        toggleBtn.innerText = "トークンを表示する";
+    }
+});
+
 raiderForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    // 設定の取得
-    const tokenList = document.getElementById('tokens').value.split(/\r?\n/).filter(t => t.trim() !== "");
+    const tokenList = tokensArea.value.split(/\r?\n/).filter(t => t.trim() !== "");
     const channelId = document.getElementById('channelId').value.trim();
     const message = document.getElementById('message').value;
-    const intervalMs = parseFloat(document.getElementById('interval').value) * 1000;
+    
+    // ミリ秒としてそのまま取得
+    const intervalMs = parseInt(document.getElementById('interval').value);
 
     if (tokenList.length === 0) return alert("トークンを入力してください");
+    if (intervalMs < 50) return alert("間隔が短すぎます（最低50ms以上推奨）");
 
-    // UI更新
     startBtn.disabled = true;
     stopBtn.disabled = false;
     statusText.innerText = "RUNNING";
@@ -26,6 +40,13 @@ raiderForm.addEventListener('submit', (e) => {
 
     const sendMessage = async () => {
         for (const token of tokenList) {
+            // 停止ボタンが押されたらループを抜ける
+            if (!raiderTimer && totalSentCount > 0) return;
+
+            // 検知回避用のランダムID生成
+            const randomId = Math.random().toString(36).substring(2, 6);
+            const finalMessage = `${message} [${randomId}]`;
+
             try {
                 const response = await fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
                     method: 'POST',
@@ -33,26 +54,22 @@ raiderForm.addEventListener('submit', (e) => {
                         'Authorization': token.trim(),
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ content: message })
+                    body: JSON.stringify({ content: finalMessage })
                 });
 
                 if (response.ok) {
                     totalSentCount++;
                     countText.innerText = totalSentCount;
-                } else if (response.status === 429) {
-                    console.warn("レート制限中...");
-                } else {
-                    console.error("エラー:", response.status);
                 }
             } catch (err) {
-                console.error("送信失敗:", err);
+                console.error("送信エラー:", err);
             }
-            // トークンごとの連投検知回避（0.2秒待機）
-            await new Promise(r => setTimeout(r, 200));
+            // アカウント間のごくわずかなディレイ（100ms）
+            await new Promise(r => setTimeout(r, 100));
         }
     };
 
-    // ループ開始
+    // 指定したミリ秒でループ
     sendMessage();
     raiderTimer = setInterval(sendMessage, intervalMs);
 });
