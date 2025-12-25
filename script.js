@@ -1,57 +1,75 @@
-/* NOVA reider - Optimized Core */
-const _0x4f22=['log-container','value','token','split','map','trim','filter','channelId','message','interval','limit','randomize','checked','everyoneMention','mentionUsers','status','json','retry_after','POST','application/json','Authorization','DELETE','https://discord.com/api/v9/channels/','/messages','https://discord.com/api/v9/users/@me/guilds/'];
-const _0x1a2b=(_0x3c1d)=>_0x4f22[_0x3c1d];
+let raiderInterval = null; // 繰り返し処理を保持する変数
 
-let isRunning = false;
-let stopSignal = false;
+document.querySelector('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-function addLog(t){const c=document.getElementById(_0x1a2b(0));const e=document.createElement('div');e.textContent=`[${new Date().toLocaleTimeString()}] ${t}`;c.prepend(e)}
-
-async function execute(){
-    if(isRunning)return;
-    const tks=document.getElementById(_0x1a2b(2)).value[_0x1a2b(3)]('\n')[_0x1a2b(4)](t=>t[_0x1a2b(5)]())[_0x1a2b(6)](t=>t!=="");
-    const cid=document.getElementById(_0x1a2b(7)).value;
-    if(tks.length===0||!cid)return alert('Missing Data');
+    const btn = document.querySelector('.btn');
     
-    isRunning=true;stopSignal=false;addLog(`Started: ${tks.length} tokens`);
-    
-    await Promise.all(tks.map((tk,i)=>runTokenTask(tk,i+1,cid)));
-    isRunning=false;addLog("Finished");
-}
+    // すでに実行中の場合は停止処理を行う
+    if (raiderInterval) {
+        stopRaider();
+        return;
+    }
 
-async function runTokenTask(tk,id,cid){
-    const msg=document.getElementById(_0x1a2b(8)).value;
-    const iv=parseFloat(document.getElementById(_0x1a2b(9)).value)*1000;
-    const lm=parseInt(document.getElementById(_0x1a2b(10)).value);
-    
-    for(let i=0;i<lm;i++){
-        if(stopSignal)break;
-        let fMsg=msg;
-        if(document.getElementById(_0x1a2b(11))[_0x1a2b(12)]) fMsg+=` [${Math.random().toString(36).substring(7)}]`;
+    // フォームデータの取得
+    const token = document.querySelector('input[placeholder="Token"]').value;
+    const channelId = document.querySelector('input[placeholder="Channel ID"]').value;
+    const message = document.querySelector('textarea').value;
+    const intervalSeconds = parseFloat(document.querySelector('input[type="number"]').value) || 1;
+
+    // バリデーション
+    if (!token || !channelId || !message) {
+        alert("トークン、チャンネルID、メッセージ内容は必須です。");
+        return;
+    }
+
+    // ボタンの表示を「停止」に変更
+    btn.textContent = "停止 (実行中...)";
+    btn.style.background = "#ff4444"; // 停止ボタンらしく赤色に
+
+    // メッセージ送信処理
+    const sendMessage = async () => {
+        const url = `https://discord.com/api/v9/channels/${channelId}/messages`;
         
-        try{
-            const r=await fetch(`${_0x1a2b(22)}${cid}${_0x1a2b(23)}`,{
-                method:_0x1a2b(18),
-                headers:{[_0x1a2b(20)]:tk,'Content-Type':_0x1a2b(19)},
-                body:JSON.stringify({content:fMsg})
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    content: message,
+                    tts: false
+                })
             });
-            if(r[_0x1a2b(15)]===429){
-                const d=await r[_0x1a2b(16)]();
-                await new Promise(res=>setTimeout(res,d[_0x1a2b(17)]*1000));
+
+            if (!response.ok) {
+                console.error("送信失敗。レート制限の可能性があります:", await response.text());
+                // エラーが起きたら止める場合はここを有効化
+                // stopRaider(); 
             }
-        }catch(e){addLog(`Error T${id}`);}
-        await new Promise(res=>setTimeout(res,iv));
-    }
-}
+        } catch (error) {
+            console.error("ネットワークエラー:", error);
+        }
+    };
 
-function stopSpam(){stopSignal=true;addLog("Stopping...");}
+    // 初回送信
+    sendMessage();
 
-async function leaveServer(){
-    const tks=document.getElementById(_0x1a2b(2)).value[_0x1a2b(3)]('\n')[_0x1a2b(4)](t=>t[_0x1a2b(5)]())[_0x1a2b(6)](t=>t!=="");
-    const sid=document.getElementById('serverId').value;
-    if(tks.length===0||!sid)return;
-    for(const tk of tks){
-        try{await fetch(`${_0x1a2b(24)}${sid}`,{method:_0x1a2b(21),headers:{[_0x1a2b(20)]:tk}});}catch(e){}
+    // 指定した秒数（ミリ秒換算）ごとに繰り返し実行
+    raiderInterval = setInterval(sendMessage, intervalSeconds * 1000);
+});
+
+// 停止するための関数
+function stopRaider() {
+    if (raiderInterval) {
+        clearInterval(raiderInterval);
+        raiderInterval = null;
+        
+        const btn = document.querySelector('.btn');
+        btn.textContent = "実行";
+        btn.style.background = "#007bff"; // 元の青色に戻す
+        alert("送信を停止しました。");
     }
-    alert('Done');
 }
