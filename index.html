@@ -1,125 +1,56 @@
-:root {
-    --bg-color: #0d0d15;
-    --card-bg: #1a1a2e;
-    --text-color: #f0f0f5;
-    --primary: #00d4ff;
-    --danger: #ff0055;
-    --border: #2e2e4a;
-}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Raider Multi-Secure</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-body {
-    font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-    margin: 0;
-}
+<div class="container">
+    <header>
+        <h1 class="brand-title">NOVA RAIDER</h1>
+        <p class="subtitle">Next-Gen Multi-Account Automator</p>
+    </header>
 
-.container {
-    width: 100%;
-    max-width: 500px;
-    background: var(--card-bg);
-    padding: 30px;
-    border-radius: 16px;
-    box-shadow: 0 0 25px rgba(0, 212, 255, 0.15);
-    border: 1px solid var(--border);
-}
+    <form id="raiderForm">
+        <div class="section">
+            <label>USER TOKENS (1行に1つ)</label>
+            <div class="token-container">
+                <textarea id="tokens" class="masked" placeholder="mfa.token1&#10;mfa.token2" style="height: 100px;" required></textarea>
+                <div id="toggleBtn" class="view-toggle">トークンを表示する</div>
+            </div>
+        </div>
 
-header {
-    text-align: center;
-    margin-bottom: 25px;
-}
+        <div class="form-row section">
+            <div style="flex: 2;">
+                <label>CHANNEL ID</label>
+                <input type="text" id="channelId" placeholder="123456789012345" required>
+            </div>
+            <div style="flex: 1;">
+                <label>INTERVAL (ms)</label>
+                <input type="number" id="interval" value="1000" step="50" min="50">
+            </div>
+        </div>
 
-.brand-title {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 900;
-    letter-spacing: 3px;
-    color: var(--primary);
-    text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
-}
+        <div class="section">
+            <label>MESSAGE CONTENT</label>
+            <textarea id="message" placeholder="Input your message here..." style="height: 60px;" required></textarea>
+        </div>
 
-.subtitle {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.6;
-}
+        <div class="controls">
+            <button type="submit" id="startBtn" class="btn btn-primary">NOVA 起動</button>
+            <button type="button" id="stopBtn" class="btn btn-danger" disabled>停止</button>
+        </div>
+    </form>
 
-.section {
-    margin-bottom: 20px;
-}
+    <div class="status-board">
+        <span>STATUS: <strong id="statusText" style="color: #888;">READY</strong></span>
+        <span>SENT: <strong id="countText">0</strong></span>
+    </div>
+</div>
 
-label {
-    display: block;
-    font-size: 12px;
-    margin-bottom: 8px;
-    color: var(--primary);
-    font-weight: bold;
-}
-
-textarea, input {
-    width: 100%;
-    padding: 12px;
-    background: #0a0a1a;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: white;
-    box-sizing: border-box;
-    outline: none;
-    font-family: 'Consolas', monospace;
-}
-
-.masked {
-    -webkit-text-security: disc !important;
-}
-
-.view-toggle {
-    font-size: 11px;
-    color: var(--primary);
-    cursor: pointer;
-    text-align: right;
-    margin-top: 5px;
-    text-decoration: underline;
-    user-select: none;
-}
-
-.form-row {
-    display: flex;
-    gap: 15px;
-}
-
-.controls {
-    display: flex;
-    gap: 10px;
-    margin-top: 25px;
-}
-
-.btn {
-    flex: 1;
-    padding: 15px;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: 0.3s;
-}
-
-.btn-primary { background: var(--primary); color: #000; }
-.btn-danger { background: var(--danger); color: white; }
-.btn-danger:disabled { background: #333; cursor: not-allowed; opacity: 0.5; }
-
-.status-board {
-    margin-top: 20px;
-    padding: 15px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    font-family: 'Consolas', monospace;
-    font-size: 14px;
-    border: 1px inset var(--border);
-}
+<script src="script.js"></script>
+</body>
+</html>
