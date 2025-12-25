@@ -1,75 +1,67 @@
-let raiderInterval = null; // 繰り返し処理を保持する変数
+let raiderTimer = null;
+let totalSentCount = 0;
 
-document.querySelector('form').addEventListener('submit', async (e) => {
+const raiderForm = document.getElementById('raiderForm');
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const statusText = document.getElementById('statusText');
+const countText = document.getElementById('countText');
+
+raiderForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const btn = document.querySelector('.btn');
-    
-    // すでに実行中の場合は停止処理を行う
-    if (raiderInterval) {
-        stopRaider();
-        return;
-    }
+    // 設定の取得
+    const tokenList = document.getElementById('tokens').value.split(/\r?\n/).filter(t => t.trim() !== "");
+    const channelId = document.getElementById('channelId').value.trim();
+    const message = document.getElementById('message').value;
+    const intervalMs = parseFloat(document.getElementById('interval').value) * 1000;
 
-    // フォームデータの取得
-    const token = document.querySelector('input[placeholder="Token"]').value;
-    const channelId = document.querySelector('input[placeholder="Channel ID"]').value;
-    const message = document.querySelector('textarea').value;
-    const intervalSeconds = parseFloat(document.querySelector('input[type="number"]').value) || 1;
+    if (tokenList.length === 0) return alert("トークンを入力してください");
 
-    // バリデーション
-    if (!token || !channelId || !message) {
-        alert("トークン、チャンネルID、メッセージ内容は必須です。");
-        return;
-    }
+    // UI更新
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    statusText.innerText = "RUNNING";
+    statusText.style.color = "#00d4ff";
 
-    // ボタンの表示を「停止」に変更
-    btn.textContent = "停止 (実行中...)";
-    btn.style.background = "#ff4444"; // 停止ボタンらしく赤色に
-
-    // メッセージ送信処理
     const sendMessage = async () => {
-        const url = `https://discord.com/api/v9/channels/${channelId}/messages`;
-        
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': token,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    content: message,
-                    tts: false
-                })
-            });
+        for (const token of tokenList) {
+            try {
+                const response = await fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': token.trim(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content: message })
+                });
 
-            if (!response.ok) {
-                console.error("送信失敗。レート制限の可能性があります:", await response.text());
-                // エラーが起きたら止める場合はここを有効化
-                // stopRaider(); 
+                if (response.ok) {
+                    totalSentCount++;
+                    countText.innerText = totalSentCount;
+                } else if (response.status === 429) {
+                    console.warn("レート制限中...");
+                } else {
+                    console.error("エラー:", response.status);
+                }
+            } catch (err) {
+                console.error("送信失敗:", err);
             }
-        } catch (error) {
-            console.error("ネットワークエラー:", error);
+            // トークンごとの連投検知回避（0.2秒待機）
+            await new Promise(r => setTimeout(r, 200));
         }
     };
 
-    // 初回送信
+    // ループ開始
     sendMessage();
-
-    // 指定した秒数（ミリ秒換算）ごとに繰り返し実行
-    raiderInterval = setInterval(sendMessage, intervalSeconds * 1000);
+    raiderTimer = setInterval(sendMessage, intervalMs);
 });
 
-// 停止するための関数
-function stopRaider() {
-    if (raiderInterval) {
-        clearInterval(raiderInterval);
-        raiderInterval = null;
-        
-        const btn = document.querySelector('.btn');
-        btn.textContent = "実行";
-        btn.style.background = "#007bff"; // 元の青色に戻す
-        alert("送信を停止しました。");
-    }
-}
+stopBtn.addEventListener('click', () => {
+    clearInterval(raiderTimer);
+    raiderTimer = null;
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    statusText.innerText = "STOPPED";
+    statusText.style.color = "#ff0055";
+});
