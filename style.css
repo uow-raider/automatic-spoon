@@ -2,13 +2,13 @@
     --bg-color: #0d0d15;
     --card-bg: #1a1a2e;
     --text-color: #f0f0f5;
-    --primary: #00d4ff; /* NOVA BLUE */
+    --primary: #00d4ff;
     --danger: #ff0055;
     --border: #2e2e4a;
 }
 
 body {
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     display: flex;
@@ -23,7 +23,7 @@ body {
     background: var(--card-bg);
     padding: 30px;
     border-radius: 16px;
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.15);
     border: 1px solid var(--border);
 }
 
@@ -38,7 +38,7 @@ header {
     font-weight: 900;
     letter-spacing: 3px;
     color: var(--primary);
-    text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
 }
 
 .subtitle {
@@ -48,16 +48,19 @@ header {
     opacity: 0.6;
 }
 
-.section-title {
-    font-size: 11px;
-    font-weight: 800;
-    margin: 20px 0 10px;
-    padding-left: 5px;
-    border-left: 3px solid var(--primary);
-    color: var(--primary);
+.section {
+    margin-bottom: 20px;
 }
 
-input, textarea {
+label {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+textarea, input {
     width: 100%;
     padding: 12px;
     background: #0a0a1a;
@@ -65,12 +68,22 @@ input, textarea {
     border-radius: 8px;
     color: white;
     box-sizing: border-box;
-    transition: 0.3s;
+    outline: none;
+    font-family: 'Consolas', monospace;
 }
 
-input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+.masked {
+    -webkit-text-security: disc !important;
+}
+
+.view-toggle {
+    font-size: 11px;
+    color: var(--primary);
+    cursor: pointer;
+    text-align: right;
+    margin-top: 5px;
+    text-decoration: underline;
+    user-select: none;
 }
 
 .form-row {
@@ -92,11 +105,12 @@ input:focus {
     font-weight: bold;
     cursor: pointer;
     text-transform: uppercase;
+    transition: 0.3s;
 }
 
 .btn-primary { background: var(--primary); color: #000; }
 .btn-danger { background: var(--danger); color: white; }
-.btn-danger:disabled { background: #333; color: #777; cursor: not-allowed; }
+.btn-danger:disabled { background: #333; cursor: not-allowed; opacity: 0.5; }
 
 .status-board {
     margin-top: 20px;
@@ -105,6 +119,7 @@ input:focus {
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
-    font-family: monospace;
+    font-family: 'Consolas', monospace;
     font-size: 14px;
+    border: 1px inset var(--border);
 }
