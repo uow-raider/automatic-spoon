@@ -3,15 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOVA Raider Multi-Secure</title>
-    <link rel="stylesheet" href="style.css">
+    <title>NOVA Raider Multi-Secure (Ultra)</title>
+    <style>
+        :root {
+            --bg-color: #0d0d15;
+            --card-bg: #1a1a2e;
+            --text-color: #f0f0f5;
+            --primary: #00d4ff;
+            --danger: #ff0055;
+            --success: #00ff88;
+            --border: #2e2e4a;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.15);
+            border: 1px solid var(--border);
+        }
+
+        header { text-align: center; margin-bottom: 25px; }
+        .brand-title { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: 3px; color: var(--primary); text-shadow: 0 0 10px rgba(0, 212, 255, 0.4); }
+        .subtitle { font-size: 11px; text-transform: uppercase; opacity: 0.6; }
+
+        .section { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; margin-bottom: 5px; color: var(--primary); font-weight: bold; }
+
+        textarea, input {
+            width: 100%; padding: 10px; background: #0a0a1a; border: 1px solid var(--border);
+            border-radius: 8px; color: white; box-sizing: border-box; outline: none; font-family: 'Consolas', monospace;
+        }
+
+        .masked { -webkit-text-security: disc !important; }
+        .view-toggle { font-size: 11px; color: var(--primary); cursor: pointer; text-align: right; margin-top: 5px; text-decoration: underline; user-select: none; }
+        .form-row { display: flex; gap: 10px; }
+
+        .controls { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-primary { background: var(--primary); color: #000; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:disabled { background: #333; opacity: 0.5; cursor: not-allowed; }
+
+        .status-board {
+            margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3);
+            border-radius: 8px; display: flex; justify-content: space-between;
+            font-family: 'Consolas', monospace; font-size: 14px; border: 1px inset var(--border);
+        }
+
+        #logBoard {
+            margin-top: 15px; height: 120px; background: #05050a; border: 1px solid var(--border);
+            border-radius: 8px; padding: 10px; font-size: 10px; overflow-y: scroll; color: #aaa; font-family: 'Consolas', monospace;
+        }
+        .log-entry { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 2px; }
+        .log-success { color: var(--success); }
+        .log-error { color: var(--danger); }
+    </style>
 </head>
 <body>
 
 <div class="container">
     <header>
         <h1 class="brand-title">NOVA RAIDER</h1>
-        <p class="subtitle">Next-Gen Multi-Account Automator</p>
+        <p class="subtitle">Next-Gen Multi-Account Automator (Global Server Mode)</p>
     </header>
 
     <form id="raiderForm">
@@ -25,8 +91,8 @@
 
         <div class="form-row section">
             <div style="flex: 2;">
-                <label>CHANNEL ID</label>
-                <input type="text" id="channelId" placeholder="1234567890" required>
+                <label>GUILD (SERVER) ID</label>
+                <input type="text" id="guildId" placeholder="1234567890" required>
             </div>
             <div style="flex: 1;">
                 <label>INTERVAL (ms)</label>
@@ -37,16 +103,11 @@
         <div class="form-row section">
             <div style="flex: 1;">
                 <label>メンション人数/回</label>
-                <input type="number" id="mentionCount" value="0" min="0" max="10">
+                <input type="number" id="mentionCount" value="3" min="0" max="10">
             </div>
             <div style="flex: 1; align-self: flex-end;">
-                <button type="button" id="fetchUsersBtn" class="btn btn-fetch">ユーザーID取得</button>
+                <p style="font-size: 10px; opacity: 0.5; margin: 0;">※全チャンネル・全ユーザーを自動取得します</p>
             </div>
-        </div>
-
-        <div class="section">
-            <label>ターゲットユーザーID (自動取得または手動入力)</label>
-            <textarea id="targetUserIds" placeholder="1234567890&#10;0987654321" style="height: 60px;"></textarea>
         </div>
 
         <div class="section">
@@ -64,8 +125,171 @@
         <span>STATUS: <strong id="statusText" style="color: #888;">READY</strong></span>
         <span>SENT: <strong id="countText">0</strong></span>
     </div>
+
+    <div id="logBoard">
+        <div class="log-entry">システム待機中...</div>
+    </div>
 </div>
 
-<script src="script.js"></script>
+<script>
+    let activeRaiders = [];
+    let totalSentCount = 0;
+    let globalChannelIds = [];
+    let globalMemberIds = [];
+
+    const raiderForm = document.getElementById('raiderForm');
+    const tokensArea = document.getElementById('tokens');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const statusText = document.getElementById('statusText');
+    const countText = document.getElementById('countText');
+    const logBoard = document.getElementById('logBoard');
+
+    // トークン表示切り替え
+    toggleBtn.addEventListener('click', () => {
+        const isMasked = tokensArea.classList.toggle('masked');
+        toggleBtn.innerText = isMasked ? "トークンを表示する" : "トークンを隠す";
+    });
+
+    // ログ出力
+    function addLog(msg, type = '') {
+        const div = document.createElement('div');
+        div.className = `log-entry ${type}`;
+        div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        logBoard.prepend(div);
+    }
+
+    // ランダム文字列生成
+    function generateStrongRandom() {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let result = "\n"; 
+        for (let i = 0; i < 15; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    // API: 全チャンネル取得
+    async function fetchAllChannels(guildId, token) {
+        try {
+            const res = await fetch(`https://discord.com/api/v9/guilds/${guildId}/channels`, {
+                headers: { 'Authorization': token.trim() }
+            });
+            const data = await res.json();
+            if (!Array.isArray(data)) return [];
+            // Type 0:Text, 2:Voice, 5:News
+            return data.filter(c => [0, 2, 5].includes(c.type)).map(c => c.id);
+        } catch (e) { return []; }
+    }
+
+    // API: 全メンバー取得 (最大1000)
+    async function fetchGuildMembers(guildId, token) {
+        try {
+            const res = await fetch(`https://discord.com/api/v9/guilds/${guildId}/members?limit=1000`, {
+                headers: { 'Authorization': token.trim() }
+            });
+            const data = await res.json();
+            if (!Array.isArray(data)) return [];
+            return data.map(m => m.user.id);
+        } catch (e) { return []; }
+    }
+
+    // 個別トークンの送信タスク
+    async function executeTask(token, intervalMs) {
+        const raiderId = setInterval(async () => {
+            if (globalChannelIds.length === 0) return;
+
+            // ランダムに1つチャンネルを選択
+            const targetChannel = globalChannelIds[Math.floor(Math.random() * globalChannelIds.length)];
+            
+            // メンション作成
+            let mentions = "";
+            const mCount = parseInt(document.getElementById('mentionCount').value);
+            if (mCount > 0 && globalMemberIds.length > 0) {
+                const shuffled = [...globalMemberIds].sort(() => 0.5 - Math.random());
+                mentions = shuffled.slice(0, mCount).map(id => `<@${id}>`).join(" ");
+            }
+
+            const messageBase = document.getElementById('message').value;
+            const finalMessage = `${mentions} ${messageBase} ${generateStrongRandom()}`;
+
+            try {
+                const res = await fetch(`https://discord.com/api/v9/channels/${targetChannel}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': token.trim(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content: finalMessage })
+                });
+
+                if (res.ok) {
+                    totalSentCount++;
+                    countText.innerText = totalSentCount;
+                    addLog(`送信成功: ${token.substring(0,10)}... -> CH:${targetChannel}`, 'log-success');
+                } else if (res.status === 403) {
+                    addLog(`権限なし無視: CH:${targetChannel}`, 'log-error');
+                } else if (res.status === 429) {
+                    addLog(`制限(429)検知: 待機してください`, 'log-error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }, intervalMs);
+        
+        activeRaiders.push(raiderId);
+    }
+
+    // フォーム送信
+    raiderForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const tokenList = tokensArea.value.split(/\r?\n/).filter(t => t.trim() !== "");
+        const guildId = document.getElementById('guildId').value.trim();
+        const intervalMs = parseInt(document.getElementById('interval').value);
+
+        if (tokenList.length === 0) return alert("トークンを入力してください");
+
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        statusText.innerText = "FETCHING...";
+        addLog("サーバー情報を取得中...");
+
+        // 初回データ取得
+        const mainToken = tokenList[0];
+        globalChannelIds = await fetchAllChannels(guildId, mainToken);
+        globalMemberIds = await fetchGuildMembers(guildId, mainToken);
+
+        if (globalChannelIds.length === 0) {
+            addLog("チャンネルが1つも取得できませんでした。中断します。", "log-error");
+            stopBtn.click();
+            return;
+        }
+
+        addLog(`${globalChannelIds.length}個のチャンネル、${globalMemberIds.length}名のユーザーを捕捉。`);
+        statusText.innerText = "RUNNING";
+        statusText.style.color = "#00d4ff";
+
+        // 各トークンを別のプロセスとして起動
+        tokenList.forEach((token, index) => {
+            setTimeout(() => {
+                addLog(`Instance #${index+1} 起動開始`);
+                executeTask(token, intervalMs);
+            }, index * 300); // 起動タイミングを少しずらして負荷分散
+        });
+    });
+
+    // 停止ボタン
+    stopBtn.addEventListener('click', () => {
+        activeRaiders.forEach(id => clearInterval(id));
+        activeRaiders = [];
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        statusText.innerText = "STOPPED";
+        statusText.style.color = "#ff0055";
+        addLog("すべての処理を停止しました。");
+    });
+</script>
+
 </body>
 </html>
