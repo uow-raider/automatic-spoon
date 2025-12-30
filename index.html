@@ -1,265 +1,295 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOVA Raider Multi-Secure (Ultra + Joiner)</title>
-    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    <style>
-        :root {
-            --bg-color: #0d0d15;
-            --card-bg: #1a1a2e;
-            --text-color: #f0f0f5;
-            --primary: #00d4ff;
-            --danger: #ff0055;
-            --success: #00ff88;
-            --border: #2e2e4a;
-            --discord: #5865F2;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Raider Multi-Secure (Ultra)</title>
+    <style>
+        :root {
+            --bg-color: #0d0d15;
+            --card-bg: #1a1a2e;
+            --text-color: #f0f0f5;
+            --primary: #00d4ff;
+            --danger: #ff0055;
+            --success: #00ff88;
+            --border: #2e2e4a;
+        }
 
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; padding: 20px; margin: 0; }
-        .container { width: 100%; max-width: 650px; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 0 25px rgba(0, 212, 255, 0.15); border: 1px solid var(--border); }
-        header { text-align: center; margin-bottom: 25px; }
-        .brand-title { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: 3px; color: var(--primary); text-shadow: 0 0 10px rgba(0, 212, 255, 0.4); }
-        .subtitle { font-size: 11px; text-transform: uppercase; opacity: 0.6; }
-        .section { margin-bottom: 15px; }
-        label { display: block; font-size: 11px; margin-bottom: 5px; color: var(--primary); font-weight: bold; text-transform: uppercase; }
-        textarea, input { width: 100%; padding: 10px; background: #0a0a1a; border: 1px solid var(--border); border-radius: 8px; color: white; box-sizing: border-box; outline: none; font-family: 'Consolas', monospace; font-size: 13px; }
-        .masked { -webkit-text-security: disc !important; }
-        .view-toggle { font-size: 10px; color: var(--primary); cursor: pointer; text-align: right; margin-top: 5px; text-decoration: underline; }
-        .form-row { display: flex; gap: 10px; }
-        .controls { display: flex; gap: 10px; margin-top: 20px; }
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; font-size: 12px; }
-        .btn-primary { background: var(--primary); color: #000; }
-        .btn-join { background: var(--discord); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status-board { margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; display: flex; justify-content: space-between; font-family: 'Consolas', monospace; font-size: 14px; border: 1px inset var(--border); }
-        #logBoard { margin-top: 15px; height: 150px; background: #05050a; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 10px; overflow-y: scroll; color: #aaa; font-family: 'Consolas', monospace; }
-        .log-entry { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 2px; }
-        .log-success { color: var(--success); }
-        .log-error { color: var(--danger); }
-        .log-info { color: var(--primary); }
-        #captcha-box { margin-top: 15px; display: flex; justify-content: center; }
-    </style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.15);
+            border: 1px solid var(--border);
+        }
+
+        header { text-align: center; margin-bottom: 25px; }
+        .brand-title { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: 3px; color: var(--primary); text-shadow: 0 0 10px rgba(0, 212, 255, 0.4); }
+        .subtitle { font-size: 11px; text-transform: uppercase; opacity: 0.6; }
+
+        .section { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; margin-bottom: 5px; color: var(--primary); font-weight: bold; }
+
+        textarea, input {
+            width: 100%; padding: 10px; background: #0a0a1a; border: 1px solid var(--border);
+            border-radius: 8px; color: white; box-sizing: border-box; outline: none; font-family: 'Consolas', monospace;
+        }
+
+        .masked { -webkit-text-security: disc !important; }
+        .view-toggle { font-size: 11px; color: var(--primary); cursor: pointer; text-align: right; margin-top: 5px; text-decoration: underline; user-select: none; }
+        .form-row { display: flex; gap: 10px; }
+
+        .controls { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-primary { background: var(--primary); color: #000; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:disabled { background: #333; opacity: 0.5; cursor: not-allowed; }
+
+        .status-board {
+            margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3);
+            border-radius: 8px; display: flex; justify-content: space-between;
+            font-family: 'Consolas', monospace; font-size: 14px; border: 1px inset var(--border);
+        }
+
+        #logBoard {
+            margin-top: 15px; height: 120px; background: #05050a; border: 1px solid var(--border);
+            border-radius: 8px; padding: 10px; font-size: 10px; overflow-y: scroll; color: #aaa; font-family: 'Consolas', monospace;
+        }
+        .log-entry { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 2px; }
+        .log-success { color: var(--success); }
+        .log-error { color: var(--danger); }
+    </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1 class="brand-title">NOVA RAIDER</h1>
-        <p class="subtitle">Multi-Account Secure Automator & Joiner</p>
-    </header>
+    <header>
+        <h1 class="brand-title">NOVA RAIDER</h1>
+        <p class="subtitle">Next-Gen Multi-Account Automator (Global Server Mode)</p>
+    </header>
 
-    <div class="section">
-        <label>USER TOKENS (1 per line)</label>
-        <textarea id="tokens" class="masked" placeholder="token1&#10;token2" style="height: 80px;"></textarea>
-        <div id="toggleBtn" class="view-toggle">Show Tokens</div>
-    </div>
+    <form id="raiderForm">
+        <div class="section">
+            <label>USER TOKENS (1行に1つ)</label>
+            <div class="token-container">
+                <textarea id="tokens" class="masked" placeholder="mfa.token1&#10;mfa.token2" style="height: 80px;" required></textarea>
+                <div id="toggleBtn" class="view-toggle">トークンを表示する</div>
+            </div>
+        </div>
 
-    <div class="form-row section">
-        <div style="flex: 2;">
-            <label>INVITE LINK / CODE</label>
-            <input type="text" id="inviteLink" placeholder="https://discord.gg/xxxx">
-        </div>
-        <div style="flex: 1; align-self: flex-end;">
-            <button id="joinBtn" class="btn btn-join">JOIN SERVER</button>
-        </div>
-    </div>
+        <div class="form-row section">
+            <div style="flex: 2;">
+                <label>GUILD (SERVER) ID</label>
+                <input type="text" id="guildId" placeholder="1234567890" required>
+            </div>
+            <div style="flex: 1;">
+                <label>INTERVAL (ms)</label>
+                <input type="number" id="interval" value="1000" min="50">
+            </div>
+        </div>
 
-    <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+        <div class="form-row section">
+            <div style="flex: 1;">
+                <label>メンション人数/回</label>
+                <input type="number" id="mentionCount" value="3" min="0" max="10">
+            </div>
+            <div style="flex: 1; align-self: flex-end;">
+                <p style="font-size: 10px; opacity: 0.5; margin: 0;">※全チャンネル・全ユーザーを自動取得します</p>
+            </div>
+        </div>
 
-    <form id="raiderForm">
-        <div class="form-row section">
-            <div style="flex: 2;">
-                <label>GUILD (SERVER) ID</label>
-                <input type="text" id="guildId" placeholder="1234567890">
-            </div>
-            <div style="flex: 1;">
-                <label>INTERVAL (ms)</label>
-                <input type="number" id="interval" value="1500" min="100">
-            </div>
-        </div>
+        <div class="section">
+            <label>MESSAGE CONTENT</label>
+            <textarea id="message" placeholder="Input your message here..." style="height: 60px;" required></textarea>
+        </div>
 
-        <div class="section">
-            <label>MESSAGE CONTENT</label>
-            <textarea id="message" placeholder="Spam message here..." style="height: 60px;"></textarea>
-        </div>
+        <div class="controls">
+            <button type="submit" id="startBtn" class="btn btn-primary">NOVA 起動</button>
+            <button type="button" id="stopBtn" class="btn btn-danger" disabled>停止</button>
+        </div>
+    </form>
 
-        <div class="controls">
-            <button type="submit" id="startBtn" class="btn btn-primary">START RAID</button>
-            <button type="button" id="stopBtn" class="btn btn-danger" disabled>STOP</button>
-        </div>
-    </form>
+    <div class="status-board">
+        <span>STATUS: <strong id="statusText" style="color: #888;">READY</strong></span>
+        <span>SENT: <strong id="countText">0</strong></span>
+    </div>
 
-    <div id="captcha-box"></div>
-
-    <div class="status-board">
-        <span>STATUS: <strong id="statusText" style="color: #888;">READY</strong></span>
-        <span>SENT: <strong id="countText">0</strong></span>
-    </div>
-
-    <div id="logBoard">
-        <div class="log-entry">System Standby...</div>
-    </div>
+    <div id="logBoard">
+        <div class="log-entry">システム待機中...</div>
+    </div>
 </div>
 
 <script>
-    // --- Global States ---
-    let activeRaiders = [];
-    let captchaQueue = [];
-    let totalSentCount = 0;
-    let globalChannelIds = [];
-    let globalMemberIds = [];
+    let activeRaiders = [];
+    let totalSentCount = 0;
+    let globalChannelIds = [];
+    let globalMemberIds = [];
 
-    const tokensArea = document.getElementById('tokens');
-    const logBoard = document.getElementById('logBoard');
-    const statusText = document.getElementById('statusText');
-    const countText = document.getElementById('countText');
+    const raiderForm = document.getElementById('raiderForm');
+    const tokensArea = document.getElementById('tokens');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const statusText = document.getElementById('statusText');
+    const countText = document.getElementById('countText');
+    const logBoard = document.getElementById('logBoard');
 
-    // --- Utility ---
-    function addLog(msg, type = '') {
-        const div = document.createElement('div');
-        div.className = `log-entry ${type}`;
-        div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        logBoard.prepend(div);
-    }
+    // トークン表示切り替え
+    toggleBtn.addEventListener('click', () => {
+        const isMasked = tokensArea.classList.toggle('masked');
+        toggleBtn.innerText = isMasked ? "トークンを表示する" : "トークンを隠す";
+    });
 
-    document.getElementById('toggleBtn').addEventListener('click', (e) => {
-        const isMasked = tokensArea.classList.toggle('masked');
-        e.target.innerText = isMasked ? "Show Tokens" : "Hide Tokens";
-    });
+    // ログ出力
+    function addLog(msg, type = '') {
+        const div = document.createElement('div');
+        div.className = `log-entry ${type}`;
+        div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        logBoard.prepend(div);
+    }
 
-    const getHeaders = (token) => ({
-        "authorization": token.trim(),
-        "content-type": "application/json",
-        "x-super-properties": btoa(JSON.stringify({
-            "os": "Windows", "browser": "Chrome", "device": "", "system_locale": "ja",
-            "browser_user_agent": navigator.userAgent, "release_channel": "stable"
-        }))
-    });
+    // ランダム文字列生成
+    function generateStrongRandom() {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let result = "\n"; 
+        for (let i = 0; i < 15; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
 
-    // --- Joiner Core Logic ---
-    async function joinServer(token, inviteCode, captchaKey = null, rqToken = null) {
-        const tMask = token.substring(0, 10) + "...";
-        const payload = { session_id: crypto.randomUUID().replace(/-/g, '') };
-        
-        const headers = getHeaders(token);
-        if (captchaKey) headers["x-captcha-key"] = captchaKey;
-        if (rqToken) headers["x-captcha-rqtoken"] = rqToken;
+    // API: 全チャンネル取得
+    async function fetchAllChannels(guildId, token) {
+        try {
+            const res = await fetch(`https://discord.com/api/v9/guilds/${guildId}/channels`, {
+                headers: { 'Authorization': token.trim() }
+            });
+            const data = await res.json();
+            if (!Array.isArray(data)) return [];
+            // Type 0:Text, 2:Voice, 5:News
+            return data.filter(c => [0, 2, 5].includes(c.type)).map(c => c.id);
+        } catch (e) { return []; }
+    }
 
-        try {
-            const res = await fetch(`https://discord.com/api/v9/invites/${inviteCode}`, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify(payload)
-            });
+    // API: 全メンバー取得 (最大1000)
+    async function fetchGuildMembers(guildId, token) {
+        try {
+            const res = await fetch(`https://discord.com/api/v9/guilds/${guildId}/members?limit=1000`, {
+                headers: { 'Authorization': token.trim() }
+            });
+            const data = await res.json();
+            if (!Array.isArray(data)) return [];
+            return data.map(m => m.user.id);
+        } catch (e) { return []; }
+    }
 
-            const data = await res.json();
+    // 個別トークンの送信タスク
+    async function executeTask(token, intervalMs) {
+        const raiderId = setInterval(async () => {
+            if (globalChannelIds.length === 0) return;
 
-            if (res.ok) {
-                addLog(`[Join] Success: ${tMask}`, 'log-success');
-                processNextCaptcha();
-            } else if (res.status === 400 && data.captcha_sitekey) {
-                addLog(`[Join] Captcha Required: ${tMask}`, 'log-error');
-                captchaQueue.push({ token, inviteCode, sitekey: data.captcha_sitekey, rqtoken: data.captcha_rqtoken });
-                if (captchaQueue.length === 1) renderCaptcha();
-            } else {
-                addLog(`[Join] Failed: ${data.message || res.status}`, 'log-error');
-            }
-        } catch (e) { addLog(`Error: ${e.message}`, 'log-error'); }
-    }
+            // ランダムに1つチャンネルを選択
+            const targetChannel = globalChannelIds[Math.floor(Math.random() * globalChannelIds.length)];
+            
+            // メンション作成
+            let mentions = "";
+            const mCount = parseInt(document.getElementById('mentionCount').value);
+            if (mCount > 0 && globalMemberIds.length > 0) {
+                const shuffled = [...globalMemberIds].sort(() => 0.5 - Math.random());
+                mentions = shuffled.slice(0, mCount).map(id => `<@${id}>`).join(" ");
+            }
 
-    function renderCaptcha() {
-        if (!captchaQueue.length) return;
-        const item = captchaQueue[0];
-        addLog("Captcha solving required in UI...", "log-info");
-        hcaptcha.render("captcha-box", {
-            sitekey: item.sitekey,
-            callback: (key) => {
-                hcaptcha.reset();
-                joinServer(item.token, item.inviteCode, key, item.rqtoken);
-                captchaQueue.shift();
-            }
-        });
-    }
+            const messageBase = document.getElementById('message').value;
+            const finalMessage = `${mentions} ${messageBase} ${generateStrongRandom()}`;
 
-    function processNextCaptcha() {
-        document.getElementById('captcha-box').innerHTML = "";
-        if (captchaQueue.length > 0) renderCaptcha();
-    }
+            try {
+                const res = await fetch(`https://discord.com/api/v9/channels/${targetChannel}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': token.trim(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content: finalMessage })
+                });
 
-    document.getElementById('joinBtn').addEventListener('click', async () => {
-        const invite = document.getElementById('inviteLink').value.split('/').pop();
-        const tokens = tokensArea.value.split('\n').filter(t => t.trim());
-        if (!invite || !tokens.length) return alert("Missing Info");
+                if (res.ok) {
+                    totalSentCount++;
+                    countText.innerText = totalSentCount;
+                    addLog(`送信成功: ${token.substring(0,10)}... -> CH:${targetChannel}`, 'log-success');
+                } else if (res.status === 403) {
+                    addLog(`権限なし無視: CH:${targetChannel}`, 'log-error');
+                } else if (res.status === 429) {
+                    addLog(`制限(429)検知: 待機してください`, 'log-error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }, intervalMs);
+        
+        activeRaiders.push(raiderId);
+    }
 
-        addLog(`Starting Joiner for ${tokens.length} accounts...`, 'log-info');
-        for (const [i, token] of tokens.entries()) {
-            await new Promise(r => setTimeout(r, i * 1200));
-            joinServer(token, invite);
-        }
-    });
+    // フォーム送信
+    raiderForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const tokenList = tokensArea.value.split(/\r?\n/).filter(t => t.trim() !== "");
+        const guildId = document.getElementById('guildId').value.trim();
+        const intervalMs = parseInt(document.getElementById('interval').value);
 
-    // --- Raider Core Logic ---
-    async function executeTask(token, intervalMs, guildId) {
-        const raiderId = setInterval(async () => {
-            if (!globalChannelIds.length) return;
-            const target = globalChannelIds[Math.floor(Math.random() * globalChannelIds.length)];
-            const msg = `${document.getElementById('message').value} [${Math.random().toString(36).substring(7)}]`;
-            
-            try {
-                const res = await fetch(`https://discord.com/api/v9/channels/${target}/messages`, {
-                    method: 'POST',
-                    headers: getHeaders(token),
-                    body: JSON.stringify({ content: msg })
-                });
-                if (res.ok) {
-                    totalSentCount++;
-                    countText.innerText = totalSentCount;
-                }
-            } catch (e) {}
-        }, intervalMs);
-        activeRaiders.push(raiderId);
-    }
+        if (tokenList.length === 0) return alert("トークンを入力してください");
 
-    document.getElementById('raiderForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const tokens = tokensArea.value.split('\n').filter(t => t.trim());
-        const guildId = document.getElementById('guildId').value;
-        if (!tokens.length || !guildId) return alert("Input required");
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        statusText.innerText = "FETCHING...";
+        addLog("サーバー情報を取得中...");
 
-        statusText.innerText = "FETCHING DATA...";
-        const res = await fetch(`https://discord.com/api/v9/guilds/${guildId}/channels`, { headers: getHeaders(tokens[0]) });
-        const data = await res.json();
-        
-        if (!Array.isArray(data)) {
-            addLog("Failed to fetch server data. Are tokens in the server?", "log-error");
-            return;
-        }
+        // 初回データ取得
+        const mainToken = tokenList[0];
+        globalChannelIds = await fetchAllChannels(guildId, mainToken);
+        globalMemberIds = await fetchGuildMembers(guildId, mainToken);
 
-        globalChannelIds = data.filter(c => [0, 5].includes(c.type)).map(c => c.id);
-        addLog(`Captured ${globalChannelIds.length} channels. Starting Raid...`, 'log-success');
-        
-        statusText.innerText = "RUNNING";
-        statusText.style.color = "#00d4ff";
-        document.getElementById('startBtn').disabled = true;
-        document.getElementById('stopBtn').disabled = false;
+        if (globalChannelIds.length === 0) {
+            addLog("チャンネルが1つも取得できませんでした。中断します。", "log-error");
+            stopBtn.click();
+            return;
+        }
 
-        tokens.forEach((t, i) => {
-            setTimeout(() => executeTask(t, parseInt(document.getElementById('interval').value), guildId), i * 300);
-        });
-    });
+        addLog(`${globalChannelIds.length}個のチャンネル、${globalMemberIds.length}名のユーザーを捕捉。`);
+        statusText.innerText = "RUNNING";
+        statusText.style.color = "#00d4ff";
 
-    document.getElementById('stopBtn').addEventListener('click', () => {
-        activeRaiders.forEach(id => clearInterval(id));
-        activeRaiders = [];
-        statusText.innerText = "STOPPED";
-        statusText.style.color = var(--danger);
-        document.getElementById('startBtn').disabled = false;
-        document.getElementById('stopBtn').disabled = true;
-        addLog("All tasks stopped.");
-    });
+        // 各トークンを別のプロセスとして起動
+        tokenList.forEach((token, index) => {
+            setTimeout(() => {
+                addLog(`Instance #${index+1} 起動開始`);
+                executeTask(token, intervalMs);
+            }, index * 300); // 起動タイミングを少しずらして負荷分散
+        });
+    });
+
+    // 停止ボタン
+    stopBtn.addEventListener('click', () => {
+        activeRaiders.forEach(id => clearInterval(id));
+        activeRaiders = [];
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        statusText.innerText = "STOPPED";
+        statusText.style.color = "#ff0055";
+        addLog("すべての処理を停止しました。");
+    });
 </script>
+
 </body>
 </html>
